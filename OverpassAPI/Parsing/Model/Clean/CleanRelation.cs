@@ -13,6 +13,7 @@ public record CleanRelation : ICleanElement
 
     }
     public required ulong Id { get; init; }
+    public required IReadOnlyList<CleanRelationMember> Members { get; init; }
     public required IReadOnlyDictionary<string, string> AllTags { get; init; }
     public required EKnownTags KnownTags { get; init; }
 
@@ -26,7 +27,7 @@ public record CleanRelation : ICleanElement
         return new()
         {
             Id = element.Id,
-            Coordinates = new((double)element.Lat!, (double)element.Lon!),
+            Members = element.Members!.Select(CleanRelationMember.FromRawMember).ToArray(),
             AllTags = element.Tags,
             KnownTags = GetKnownTags(element.Tags),
         };

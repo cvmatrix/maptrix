@@ -1,6 +1,6 @@
 namespace CVMatrix.DropOffDefense.SLib.OverpassAPI.Parsing.Model.Clean;
 
-public record CleanRelationMember : ICleanElement
+public record CleanRelationMember
 {
     private CleanRelationMember()
     {
