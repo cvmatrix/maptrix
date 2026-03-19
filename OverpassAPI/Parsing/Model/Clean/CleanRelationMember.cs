@@ -6,12 +6,6 @@ public record CleanRelationMember
     {
 
     }
-
-    public enum EKnownRole
-    {
-        None,
-    }
-
     public enum ERelationType
     {
         Node,
@@ -20,7 +14,6 @@ public record CleanRelationMember
     }
     public required ERelationType Type { get; init; }
     public required ulong Ref { get; init; }
-    public required EKnownRole? KnownRole { get; init; }
     public required string Role { get; init; }
 
     public static CleanRelationMember FromRawMember(Raw.RawRelationMember member)
@@ -36,13 +29,7 @@ public record CleanRelationMember
                 _ => throw new NotSupportedException()
             },
             Role = member.Role,
-            KnownRole = GetKnownRole(member.Role)
         };
-    }
-
-    private static EKnownRole? GetKnownRole(string role)
-    {
-        throw new NotImplementedException();
     }
 
     public virtual bool Equals(CleanRelationMember? other)

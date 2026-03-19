@@ -3,15 +3,10 @@ namespace CVMatrix.DropOffDefense.SLib.OverpassAPI.Parsing.Model.Clean;
 public class CleanWay : ICleanElement
 {
     private CleanWay() { }
-    [Flags]
-    public enum EKnownTags
-    {
 
-    }
     public required ulong Id { get; init; }
     public required IReadOnlyList<ulong> Nodes { get; init; }
-    public required IReadOnlyDictionary<string, string> AllTags { get; init; }
-    public required EKnownTags KnownTags { get; init; }
+    public required IReadOnlyDictionary<string, string> Tags { get; init; }
 
     /// <summary>
     /// Assumes <paramref name="element"/> is a way.
@@ -24,13 +19,8 @@ public class CleanWay : ICleanElement
         {
             Id = element.Id,
             Nodes = element.Nodes!,
-            AllTags = element.Tags,
-            KnownTags = GetKnownTags(element.Tags),
+            Tags = element.Tags,
         };
-    }
-    private static EKnownTags GetKnownTags(IEnumerable<KeyValuePair<string, string>> tags)
-    {
-        throw new NotImplementedException();
     }
     public virtual bool Equals(CleanWay? other)
     {

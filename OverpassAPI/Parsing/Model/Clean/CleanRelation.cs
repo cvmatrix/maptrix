@@ -7,15 +7,9 @@ public record CleanRelation : ICleanElement
 
     }
 
-    [Flags]
-    public enum EKnownTags
-    {
-
-    }
     public required ulong Id { get; init; }
     public required IReadOnlyList<CleanRelationMember> Members { get; init; }
-    public required IReadOnlyDictionary<string, string> AllTags { get; init; }
-    public required EKnownTags KnownTags { get; init; }
+    public required IReadOnlyDictionary<string, string> Tags { get; init; }
 
     /// <summary>
     /// Assumes <paramref name="element"/> is a relation.
@@ -28,14 +22,8 @@ public record CleanRelation : ICleanElement
         {
             Id = element.Id,
             Members = element.Members!.Select(CleanRelationMember.FromRawMember).ToArray(),
-            AllTags = element.Tags,
-            KnownTags = GetKnownTags(element.Tags),
+            Tags = element.Tags,
         };
-    }
-
-    private static EKnownTags GetKnownTags(IEnumerable<KeyValuePair<string, string>> tags)
-    {
-        throw new NotImplementedException();
     }
 
     public virtual bool Equals(CleanRelation? other)

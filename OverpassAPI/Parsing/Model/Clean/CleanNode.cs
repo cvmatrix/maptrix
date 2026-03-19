@@ -1,5 +1,4 @@
 namespace CVMatrix.DropOffDefense.SLib.OverpassAPI.Parsing.Model.Clean;
-
 public record CleanNode : ICleanElement
 {
     private CleanNode()
@@ -7,15 +6,9 @@ public record CleanNode : ICleanElement
 
     }
 
-    [Flags]
-    public enum EKnownTags
-    {
-
-    }
     public required ulong Id { get; init; }
     public required Coordinates Coordinates { get; init; }
-    public required IReadOnlyDictionary<string, string> AllTags { get; init; }
-    public required EKnownTags KnownTags { get; init; }
+    public required IReadOnlyDictionary<string, string> Tags { get; init; }
 
     /// <summary>
     /// Assumes <paramref name="element"/> is a node.
@@ -28,15 +21,10 @@ public record CleanNode : ICleanElement
         {
             Id = element.Id,
             Coordinates = new((double)element.Lat!, (double)element.Lon!),
-            AllTags = element.Tags,
-            KnownTags = GetKnownTags(element.Tags),
+            Tags = element.Tags,
         };
     }
 
-    private static EKnownTags GetKnownTags(IEnumerable<KeyValuePair<string, string>> tags)
-    {
-        throw new NotImplementedException();
-    }
     public virtual bool Equals(CleanNode? other)
     {
         return other is not null && Id == other.Id;
