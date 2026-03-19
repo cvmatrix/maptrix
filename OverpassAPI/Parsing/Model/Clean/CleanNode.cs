@@ -1,4 +1,7 @@
 namespace CVMatrix.DropOffDefense.SLib.OverpassAPI.Parsing.Model.Clean;
+
+using Core;
+
 public record CleanNode : ICleanElement
 {
     private CleanNode()
@@ -7,7 +10,8 @@ public record CleanNode : ICleanElement
     }
 
     public required ulong Id { get; init; }
-    public required Coordinates Coordinates { get; init; }
+    public required double Longitude { get; init; }
+    public required double Latitude { get; init; }
     public required IReadOnlyDictionary<string, string> Tags { get; init; }
 
     /// <summary>
@@ -20,7 +24,8 @@ public record CleanNode : ICleanElement
         return new()
         {
             Id = element.Id,
-            Coordinates = new((double)element.Lat!, (double)element.Lon!),
+            Longitude = (double)element.Lon!,
+            Latitude = (double)element.Lat!,
             Tags = element.Tags,
         };
     }
