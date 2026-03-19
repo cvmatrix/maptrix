@@ -1,6 +1,6 @@
 namespace CVMatrix.DropOffDefense.SLib.OverpassAPI.Parsing;
 
-internal class Parser
+public class Parser
 {
 
 }

@@ -1,4 +1,4 @@
-namespace CVMatrix.DropOffDefense.SLib.OverpassAPI.Parsing;
+namespace CVMatrix.DropOffDefense.SLib.OverpassAPI.Parsing.Model.Raw;
 
 public class RawResponse
 {
