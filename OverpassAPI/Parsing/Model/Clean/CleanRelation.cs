@@ -2,11 +2,6 @@ namespace CVMatrix.DropOffDefense.SLib.OverpassAPI.Parsing.Model.Clean;
 
 public record CleanRelation : ICleanElement
 {
-    private CleanRelation()
-    {
-
-    }
-
     public required ulong Id { get; init; }
     public required IReadOnlyList<CleanRelationMember> Members { get; init; }
     public required IReadOnlyDictionary<string, string> Tags { get; init; }

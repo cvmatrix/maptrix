@@ -4,11 +4,6 @@ using Core;
 
 public record CleanNode : ICleanElement
 {
-    private CleanNode()
-    {
-
-    }
-
     public required ulong Id { get; init; }
     public required double Longitude { get; init; }
     public required double Latitude { get; init; }

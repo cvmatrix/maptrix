@@ -2,10 +2,6 @@ namespace CVMatrix.DropOffDefense.SLib.OverpassAPI.Parsing.Model.Clean;
 
 public record CleanRelationMember
 {
-    private CleanRelationMember()
-    {
-
-    }
     public enum ERelationType
     {
         Node,

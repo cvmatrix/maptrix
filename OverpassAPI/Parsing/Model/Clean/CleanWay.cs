@@ -1,9 +1,7 @@
 namespace CVMatrix.DropOffDefense.SLib.OverpassAPI.Parsing.Model.Clean;
 
-public class CleanWay : ICleanElement
+public record CleanWay : ICleanElement
 {
-    private CleanWay() { }
-
     public required ulong Id { get; init; }
     public required IReadOnlyList<ulong> Nodes { get; init; }
     public required IReadOnlyDictionary<string, string> Tags { get; init; }

@@ -2,10 +2,6 @@ namespace CVMatrix.DropOffDefense.SLib.OverpassAPI.Parsing.Model.Clean;
 
 public record CleanData
 {
-    private CleanData()
-    {
-    }
-
     public required IReadOnlyDictionary<ulong, CleanNode> Nodes { get; init; }
     public required IReadOnlyDictionary<ulong, CleanWay> Ways { get; init; }
     public required IReadOnlyDictionary<ulong, CleanRelation> Relations { get; init; }
