@@ -1,6 +1,6 @@
 ﻿namespace CVMatrix.DropOffDefense.SLib.Core;
 
-public interface ITravelWay
+public interface ITravelWay : ITickable
 {
     public double Distance { get; }
     public ITravelNode From { get; }
