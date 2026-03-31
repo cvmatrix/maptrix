@@ -1,3 +1,3 @@
-namespace CVMatrix.DropOffDefense.SLib.Core.Old;
+namespace CVMatrix.DropOffDefense.SLib.Core;
 
 public record struct RawCoordinates(double Latitude, double Longitude);

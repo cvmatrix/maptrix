@@ -1,5 +1,6 @@
-namespace CVMatrix.DropOffDefense.SLib.Core;
-using OverpassAPI.Parsing.Model.Clean;
+namespace CVMatrix.DropOffDefense.SLib.Core.Old;
+
+using CVMatrix.DropOffDefense.SLib.OverpassAPI.Parsing.Model.Clean;
 
 public class RoadSystem
 {
