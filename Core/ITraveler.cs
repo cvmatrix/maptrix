@@ -1,6 +1,6 @@
 ﻿namespace CVMatrix.DropOffDefense.SLib.Core;
 
-public interface ITraveler
+public interface ITraveler : ITickable
 {
     /// <summary>
     /// In speed/sec.
