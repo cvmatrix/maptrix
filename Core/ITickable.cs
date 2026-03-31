@@ -2,9 +2,5 @@
 
 public interface ITickable
 {
-    /// <summary>
-    /// Lower is higher priority.
-    /// </summary>
-    public int TickPriority { get; }
-    public void Tick(TimeSpan timestep);
+    public void Tick(ISimState simState);
 }
