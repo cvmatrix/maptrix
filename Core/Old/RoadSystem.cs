@@ -4,7 +4,6 @@ using OverpassAPI.Parsing.Model.Clean;
 public class RoadSystem
 {
     private const double EARTH_RADIUS = 6_371_000;
-
     // ts is going to be crazy
     public static RoadSystem FromOverpassData(CleanData data, RawCoordinates origin)
     {
@@ -47,7 +46,7 @@ public class RoadSystem
 
         foreach (var way in ways)
         {
-
+            // LEFTOFF
         }
         HashSet<CleanWay> __MergeAccountedLookup(ulong nodeId)
         {

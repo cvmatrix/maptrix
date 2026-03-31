@@ -1,4 +1,4 @@
-namespace CVMatrix.DropOffDefense.SLib.Core;
+namespace CVMatrix.DropOffDefense.SLib.Core.Old;
 
 public enum ELocationType
 {
