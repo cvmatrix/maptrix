@@ -10,6 +10,7 @@ using Stats;
 public class SimSystem
 {
     private int _tickIndex = -1;
+    private TimeSpan _currentTickTimestep = TimeSpan.Zero;
     private List<Traveler> _travelers = [];
     private List<Node> _nodes = [];
     private List<Way> _ways = [];
@@ -34,21 +35,32 @@ public class SimSystem
         private ITravelerBehavior _behavior = behavior;
         private TravelerStats _stats = stats;
         private Handle? _cachedHandle = null;
-        public ITravelerHandle Tick(int tickIndex, TimeSpan timestep)
+        public bool Tick()
         {
-            if (tickIndex <= _lastTicked) return _cachedHandle!;
+            var tickIndex = _sim._tickIndex;
+            if (tickIndex <= _lastTicked) return false;
             var ticks = tickIndex - _lastTicked;
+            var timestep = _sim._currentTickTimestep;
             _lastTicked = tickIndex;
 
-        }
+            throw new NotImplementedException();
 
-        private class Handle : ITravelerHandle
+            return true;
+        }
+        private void RecieveActions(IEnumerable<ETravelerAction> actions)
         {
+            throw new NotImplementedException();
+        }
+        private class Handle(Traveler source) : ITravelerHandle
+        {
+            public Traveler Source { get; }
             public TravelerStats Stats { get; }
             public void SendMessage(ETravelerMessage message)
             {
-                throw new NotImplementedException();
+                Source.RecieveActions(Source._behavior.OnRecieveMessage(message));
             }
+
+            public void EnsureUpdated() => Source.Tick();
             public ITravelWayHandle Traveling { get; }
             public Coordinates Position { get; }
             public double DistanceAlongWay { get; }
