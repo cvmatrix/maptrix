@@ -1,18 +1,9 @@
 ﻿namespace CVMatrix.DropOffDefense.SLib.Core.Handles;
 
-public interface ITravelerHandle : IHandle<Messages.ETravelerMessage>
+public interface ITravelerHandle : IHandle<Messages.ETravelerMessage, Stats.TravelerStats>
 {
-    /// <summary>
-    /// In speed/sec.
-    /// </summary>
-    public double Acceleration { get; }
-    /// <summary>
-    ///  In dist/sec.
-    /// </summary>
-    public double MaxSpeed { get; }
     public ITravelWayHandle Traveling { get; }
     public Coordinates Position { get; }
     public double DistanceAlongWay { get; }
     public ITravelNodeHandle FinalTarget { get; }
-    public IReadOnlySet<ERoadType> RoadCompatibility { get; }
 }
