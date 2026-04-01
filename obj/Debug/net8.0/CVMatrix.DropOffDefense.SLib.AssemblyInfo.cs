@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("CVMatrix.DropOffDefense.SLib")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+277559b9e177f9a72f6c8a0221884d0a8469fa34")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+239cb04fef656d9507d62c3b4a241b6f24aa683c")]
 [assembly: System.Reflection.AssemblyProductAttribute("CVMatrix.DropOffDefense.SLib")]
 [assembly: System.Reflection.AssemblyTitleAttribute("CVMatrix.DropOffDefense.SLib")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

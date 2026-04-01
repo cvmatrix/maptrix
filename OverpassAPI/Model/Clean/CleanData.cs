@@ -1,4 +1,4 @@
-namespace CVMatrix.DropOffDefense.SLib.OverpassAPI.Parsing.Model.Clean;
+namespace CVMatrix.DropOffDefense.SLib.OverpassAPI.Model.Clean;
 
 public record CleanData
 {
