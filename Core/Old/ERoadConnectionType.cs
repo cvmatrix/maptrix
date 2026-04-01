@@ -4,6 +4,5 @@ public enum ERoadConnectionType
 {
     Sidewalk,
     StreetResidential,
-    StreetArterial,
-
+    StreetArterial
 }

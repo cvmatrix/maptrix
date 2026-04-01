@@ -7,5 +7,5 @@ public enum ELocationType
     Retail,
     Parking,
     RoadIntersection,
-    House,
+    House
 }

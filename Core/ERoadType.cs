@@ -3,6 +3,7 @@ namespace CVMatrix.DropOffDefense.SLib.Core;
 public enum ERoadType
 {
     Sidewalk,
-    Street,
+
+    Street
     // figure out buslane, train, etc.
 }

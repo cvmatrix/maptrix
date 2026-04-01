@@ -9,32 +9,40 @@ using Stats;
 
 public class SimSystem
 {
-    private int _tickIndex = -1;
-    private TimeSpan _currentTickTimestep = TimeSpan.Zero;
-    private List<Traveler> _travelers = [];
-    private List<Node> _nodes = [];
-    private List<Way> _ways = [];
+    private readonly int _tickIndex = -1;
+    private readonly TimeSpan _currentTickTimestep = TimeSpan.Zero;
     private Dictionary<Traveler, Way> _travelerTravelingMap = [];
+    private List<Node> _nodes = [];
+    private List<Traveler> _travelers = [];
+    private List<Way> _ways = [];
+
     public void AddOverpassData(CleanData data)
     {
         throw new NotImplementedException();
     }
+
     public SimSystem Copy()
     {
         throw new NotImplementedException();
     }
+
     public TimeSpan Tick(TimeSpan timestep)
     {
         throw new NotImplementedException();
     }
 
+    private class Node
+    {
+    }
+
     private class Traveler(SimSystem sim, ITravelerBehavior behavior, TravelerStats stats)
     {
+        private readonly ITravelerBehavior _behavior = behavior;
         private readonly SimSystem _sim = sim;
-        private int _lastTicked = -1;
-        private ITravelerBehavior _behavior = behavior;
-        private TravelerStats _stats = stats;
         private Handle? _cachedHandle = null;
+        private int _lastTicked = -1;
+        private TravelerStats _stats = stats;
+
         public bool Tick()
         {
             var tickIndex = _sim._tickIndex;
@@ -47,30 +55,32 @@ public class SimSystem
 
             return true;
         }
-        private void RecieveActions(IEnumerable<ETravelerAction> actions)
-        {
-            throw new NotImplementedException();
-        }
+
         private class Handle(Traveler source) : ITravelerHandle
         {
+            public Coordinates Position { get; }
+            public double DistanceAlongWay { get; }
+            public ITravelNodeHandle FinalTarget { get; }
+
+            public ITravelWayHandle Traveling { get; }
             public Traveler Source { get; }
             public TravelerStats Stats { get; }
+
+            public void EnsureUpdated()
+            {
+                Source.Tick();
+            }
+
             public void SendMessage(ETravelerMessage message)
             {
                 Source.RecieveActions(Source._behavior.OnRecieveMessage(message));
             }
-
-            public void EnsureUpdated() => Source.Tick();
-            public ITravelWayHandle Traveling { get; }
-            public Coordinates Position { get; }
-            public double DistanceAlongWay { get; }
-            public ITravelNodeHandle FinalTarget { get; }
         }
-    }
 
-    private class Node
-    {
-
+        private void RecieveActions(IEnumerable<ETravelerAction> actions)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     private class Way

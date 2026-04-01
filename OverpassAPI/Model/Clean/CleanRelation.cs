@@ -2,12 +2,8 @@ namespace CVMatrix.DropOffDefense.SLib.OverpassAPI.Model.Clean;
 
 public record CleanRelation : ICleanElement
 {
-    public required ulong Id { get; init; }
-    public required IReadOnlyList<CleanRelationMember> Members { get; init; }
-    public required IReadOnlyDictionary<string, string> Tags { get; init; }
-
     /// <summary>
-    /// Assumes <paramref name="element"/> is a relation.
+    ///     Assumes <paramref name="element" /> is a relation.
     /// </summary>
     /// <param name="element"></param>
     /// <returns></returns>
@@ -17,9 +13,13 @@ public record CleanRelation : ICleanElement
         {
             Id = element.Id,
             Members = element.Members!.Select(CleanRelationMember.FromRawMember).ToArray(),
-            Tags = element.Tags,
+            Tags = element.Tags
         };
     }
+
+    public required IReadOnlyDictionary<string, string> Tags { get; init; }
+    public required IReadOnlyList<CleanRelationMember> Members { get; init; }
+    public required ulong Id { get; init; }
 
     public virtual bool Equals(CleanRelation? other)
     {

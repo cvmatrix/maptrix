@@ -2,16 +2,6 @@ namespace CVMatrix.DropOffDefense.SLib.OverpassAPI.Model.Clean;
 
 public record CleanRelationMember
 {
-    public enum ERelationType
-    {
-        Node,
-        Way,
-        Relation,
-    }
-    public required ERelationType Type { get; init; }
-    public required ulong Ref { get; init; }
-    public required string Role { get; init; }
-
     public static CleanRelationMember FromRawMember(Raw.RawRelationMember member)
     {
         return new()
@@ -24,8 +14,19 @@ public record CleanRelationMember
                 "relation" => ERelationType.Relation,
                 _ => throw new NotSupportedException()
             },
-            Role = member.Role,
+            Role = member.Role
         };
+    }
+
+    public required ERelationType Type { get; init; }
+    public required string Role { get; init; }
+    public required ulong Ref { get; init; }
+
+    public enum ERelationType
+    {
+        Node,
+        Way,
+        Relation
     }
 
     public virtual bool Equals(CleanRelationMember? other)

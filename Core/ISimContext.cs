@@ -1,5 +1,7 @@
 ﻿namespace CVMatrix.DropOffDefense.SLib.Core;
+
 using Handles;
+
 public interface ISimContext
 {
     public IEnumerable<ITravelerHandle> AllTravelers { get; }

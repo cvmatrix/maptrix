@@ -6,38 +6,51 @@ using OverpassAPI.Model.Clean;
 public class RoadSystem
 {
     private const double EARTH_RADIUS = 6_371_000;
+
     // ts is going to be crazy
     public static RoadSystem FromOverpassData(CleanData data, RawCoordinates origin)
     {
         var rawHighways = new List<CleanWay>();
         foreach (var way in data.Ways.Values)
-        {
-            if (way.Tags.ContainsKey("highway")) rawHighways.Add(way);
-        }
+            if (way.Tags.ContainsKey("highway"))
+                rawHighways.Add(way);
 
         var inverseNodeMap = GetInverseNodeMap(rawHighways);
 
-        
+
         throw new NotImplementedException();
+    }
+
+    public IReadOnlySet<RoadConnection> Connections { get; }
+    public IReadOnlySet<RoadNode> Nodes { get; }
+    public RawCoordinates ProjectionOrigin { get; }
+
+    private RoadSystem()
+    {
+    }
+
+    private struct XYCoordinates(double X, double Y);
+
+    // Who up delegating they formulas to Claude
+    private static (double x, double y, double z) CartesianOnEarthSurface(double latRad, double lonRad)
+    {
+        return (
+            EARTH_RADIUS * Math.Cos(latRad) * Math.Cos(lonRad),
+            EARTH_RADIUS * Math.Cos(latRad) * Math.Sin(lonRad),
+            EARTH_RADIUS * Math.Sin(latRad)
+        );
     }
 
     private static Dictionary<ulong, List<CleanWay>> GetInverseNodeMap(IEnumerable<CleanWay> ways)
     {
         var o = new Dictionary<ulong, List<CleanWay>>();
         foreach (var highway in ways)
-        {
-            foreach (var nodeId in highway.Nodes)
-            {
-                if (o.TryGetValue(nodeId, out var intersecting))
-                {
-                    intersecting.Add(highway);
-                }
-                else
-                {
-                    o.Add(nodeId, [highway]);
-                }
-            }
-        }
+        foreach (var nodeId in highway.Nodes)
+            if (o.TryGetValue(nodeId, out var intersecting))
+                intersecting.Add(highway);
+            else
+                o.Add(nodeId, [highway]);
+
         return o;
     }
 
@@ -50,6 +63,7 @@ public class RoadSystem
         {
             // LEFTOFF
         }
+
         HashSet<CleanWay> __MergeAccountedLookup(ulong nodeId)
         {
             var o = new HashSet<CleanWay>();
@@ -59,6 +73,7 @@ public class RoadSystem
                 while (mergeMap.TryGetValue(lookupValue, out var v)) lookupValue = v;
                 o.Add(lookupValue);
             }
+
             return o;
         }
 
@@ -66,35 +81,16 @@ public class RoadSystem
         {
             var tags = new Dictionary<string, string>(first.Tags);
             foreach (var secondTag in second.Tags) tags.TryAdd(secondTag.Key, secondTag.Value);
-            var mergedWay = new CleanWay()
+            var mergedWay = new CleanWay
             {
                 // new way takes on the Id of the first.
                 Id = first.Id,
                 Nodes = [.. first.Nodes.Take(first.Nodes.Count - 1), .. second.Nodes.Skip(1)],
-                Tags = tags,
+                Tags = tags
             };
             mergeMap[first] = mergedWay;
             mergeMap[second] = mergedWay;
         }
-    }
-    private RoadSystem()
-    {
-
-    }
-    public IReadOnlySet<RoadConnection> Connections { get; }
-    public IReadOnlySet<RoadNode> Nodes { get; }
-    public RawCoordinates ProjectionOrigin { get; }
-
-    private struct XYCoordinates(double X, double Y);
-
-    // Who up delegating they formulas to Claude
-    private static (double x, double y, double z) CartesianOnEarthSurface(double latRad, double lonRad)
-    {
-        return (
-            EARTH_RADIUS * Math.Cos(latRad) * Math.Cos(lonRad),
-            EARTH_RADIUS * Math.Cos(latRad) * Math.Sin(lonRad),
-            EARTH_RADIUS * Math.Sin(latRad)
-        );
     }
 
     private static IEnumerable<XYCoordinates> ProjectAll(

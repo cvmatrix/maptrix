@@ -2,10 +2,6 @@ namespace CVMatrix.DropOffDefense.SLib.OverpassAPI.Model.Clean;
 
 public record CleanData
 {
-    public required IReadOnlyDictionary<ulong, CleanNode> Nodes { get; init; }
-    public required IReadOnlyDictionary<ulong, CleanWay> Ways { get; init; }
-    public required IReadOnlyDictionary<ulong, CleanRelation> Relations { get; init; }
-
     public static CleanData FromRawResponse(Raw.RawResponse response)
     {
         var initSize = response.Elements.Count / 2;
@@ -13,7 +9,6 @@ public record CleanData
         Dictionary<ulong, CleanWay> ways = new(initSize);
         Dictionary<ulong, CleanRelation> relations = new(initSize);
         foreach (var element in response.Elements)
-        {
             switch (element.Type)
             {
                 case "node":
@@ -26,13 +21,16 @@ public record CleanData
                     relations.Add(element.Id, CleanRelation.FromRawElement(element));
                     break;
             }
-        }
 
         return new()
         {
             Nodes = nodes,
             Ways = ways,
-            Relations = relations,
+            Relations = relations
         };
     }
+
+    public required IReadOnlyDictionary<ulong, CleanNode> Nodes { get; init; }
+    public required IReadOnlyDictionary<ulong, CleanRelation> Relations { get; init; }
+    public required IReadOnlyDictionary<ulong, CleanWay> Ways { get; init; }
 }

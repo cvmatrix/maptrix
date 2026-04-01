@@ -3,6 +3,6 @@
 public interface IHandle<in TMessage, out TStats>
 {
     public TStats Stats { get; }
-    public void SendMessage(TMessage message);
     public void EnsureUpdated();
+    public void SendMessage(TMessage message);
 }
