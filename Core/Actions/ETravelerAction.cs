@@ -1,7 +1,8 @@
 namespace CVMatrix.DropOffDefense.SLib.Core.Actions;
 
 using Handles;
-
-public abstract record ETravelerAction : IAction
+using TickContext = BehaviorContexts.IOnTickContext<Handles.ITravelerHandle>;
+using AnyContext = BehaviorContexts.IBehaviorContext<Handles.ITravelerHandle>;
+public abstract record ETravelerAction(AnyContext _) : IAction
 {
 }
