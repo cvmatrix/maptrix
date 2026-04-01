@@ -11,4 +11,5 @@ public interface ITravelWayHandle : ITickable
     /// </summary>
     public IReadOnlyList<ITravelerHandle> Travelers { get; }
     public int LaneCount { get; }
+    public ERoadType RoadType { get; }
 }

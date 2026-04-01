@@ -14,4 +14,5 @@ public interface ITravelerHandle : IHandle<Messages.ETravelerMessage>
     public Coordinates Position { get; }
     public double DistanceAlongWay { get; }
     public ITravelNodeHandle FinalTarget { get; }
+    public IReadOnlySet<ERoadType> RoadCompatibility { get; }
 }
