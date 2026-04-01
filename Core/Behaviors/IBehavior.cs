@@ -1,7 +1,7 @@
 ﻿namespace CVMatrix.DropOffDefense.SLib.Core.Behaviors;
 
-public interface IBehavior<in THandle, in TMessage>
+public interface IBehavior<in THandle, in TMessage, out TAction>
 {
-    public void OnTick(THandle self, ISimState simState);
-    public void OnRecieveMessage(TMessage message);
+    public IEnumerable<TAction> OnTick(THandle self, ISimState simState);
+    public IEnumerable<TAction> OnRecieveMessage(TMessage message);
 }

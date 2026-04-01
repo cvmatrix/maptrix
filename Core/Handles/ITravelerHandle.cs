@@ -1,6 +1,6 @@
 ﻿namespace CVMatrix.DropOffDefense.SLib.Core.Handles;
 
-public interface ITravelerHandle : ITickable
+public interface ITravelerHandle : IHandle<Messages.ETravelerMessage>
 {
     /// <summary>
     /// In speed/sec.
