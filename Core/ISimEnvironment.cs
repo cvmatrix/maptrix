@@ -2,7 +2,7 @@
 
 using Handles;
 
-public interface ISimContext
+public interface ISimEnvironment
 {
     public IEnumerable<ITravelerHandle> AllTravelers { get; }
     public IEnumerable<ITravelNodeHandle> AllTravelNodes { get; }

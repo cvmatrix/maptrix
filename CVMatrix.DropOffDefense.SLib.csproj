@@ -6,4 +6,9 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Folder Include="Core\BehaviorContexts\TravelWay\" />
+    <Folder Include="Core\BehaviorContexts\Traveler\" />
+  </ItemGroup>
+
 </Project>

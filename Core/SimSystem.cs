@@ -39,9 +39,10 @@ public class SimSystem
     {
         private readonly ITravelerBehavior _behavior = behavior;
         private readonly SimSystem _sim = sim;
-        private Handle? _cachedHandle = null;
         private int _lastTicked = -1;
         private TravelerStats _stats = stats;
+        private double _distanceAlongWay = 0;
+        private Node? _finalTarget = null;
 
         public bool Tick()
         {
@@ -56,25 +57,25 @@ public class SimSystem
             return true;
         }
 
-        private class Handle(Traveler source) : ITravelerHandle
+        public Handle GetHandle() => new(this);
+        public class Handle(Traveler source) : ITravelerHandle
         {
             public Coordinates Position { get; }
             public double DistanceAlongWay { get; }
             public ITravelNodeHandle FinalTarget { get; }
-
             public ITravelWayHandle Traveling { get; }
             public Traveler Source { get; }
             public TravelerStats Stats { get; }
-
             public void EnsureUpdated()
             {
                 Source.Tick();
             }
-
             public void SendMessage(ETravelerMessage message)
             {
                 Source.RecieveActions(Source._behavior.OnRecieveMessage(message));
             }
+            public override bool Equals(object? obj) => obj is Handle other && Source.Equals(other.Source);
+            public override int GetHashCode() => Source.GetHashCode();
         }
 
         private void RecieveActions(IEnumerable<ETravelerAction> actions)

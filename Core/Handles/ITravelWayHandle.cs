@@ -9,7 +9,7 @@ public interface ITravelWayHandle : IHandle<Messages.ETravelWayMessage, Stats.Tr
     ///     Should be in order of distance travelled (least first).
     /// </summary>
     public IReadOnlyList<ITravelerHandle> Travelers { get; }
-
     public ITravelNodeHandle From { get; }
     public ITravelNodeHandle To { get; }
+    public bool IsImpeded { get; }
 }
