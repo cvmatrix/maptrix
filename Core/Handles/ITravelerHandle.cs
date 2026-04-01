@@ -1,6 +1,6 @@
-﻿namespace CVMatrix.DropOffDefense.SLib.Core;
+﻿namespace CVMatrix.DropOffDefense.SLib.Core.Handles;
 
-public interface ITraveler : ITickable
+public interface ITravelerHandle : ITickable
 {
     /// <summary>
     /// In speed/sec.
@@ -10,8 +10,8 @@ public interface ITraveler : ITickable
     ///  In dist/sec.
     /// </summary>
     public double MaxSpeed { get; }
-    public ITravelWay Traveling { get; }
+    public ITravelWayHandle Traveling { get; }
     public Coordinates Position { get; }
     public double DistanceAlongWay { get; }
-    public ITravelNode FinalTarget { get; }
+    public ITravelNodeHandle FinalTarget { get; }
 }
