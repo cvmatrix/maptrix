@@ -5,7 +5,7 @@ using Actions;
 using Messages;
 using Stats;
 
-internal class TravelWay : SimTickable
+internal class TravelWay : SimObject
 {
 
     public TravelWay(SimSystem sim) : base(sim)

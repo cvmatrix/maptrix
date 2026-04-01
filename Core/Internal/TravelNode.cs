@@ -5,35 +5,35 @@ using Actions;
 using Messages;
 using Stats;
 
-internal class TravelNode : SimTickable
+internal class TravelNode : SimObject<ITravelNodeHandle, ITravelNodeBehavior, TravelNodeStats, ETravelNodeMessage, ETravelNodeAction>
 {
-
-    public TravelNode(SimSystem sim) : base(sim)
+    private Coordinates _position = null!;
+    private HashSet<TravelWay> _blocked = [];
+    public TravelNode(SimSystem sim, ITravelNodeBehavior behavior, TravelNodeStats stats) : base(sim, behavior, stats)
     {
 
     }
+
+    public required Coordinates Position
+    {
+        get => _position;
+        init => _position = value;
+    }
+    protected override void TickLogic(TimeSpan timestep)
+    {
+        throw new NotImplementedException();
+    }
+
     public Handle GetHandle() => new(this);
-    public class Handle(TravelNode source) : ITravelNodeHandle
+    public class Handle(TravelNode source) : SimObjectHandle<TravelNode, ITravelNodeHandle, ITravelNodeBehavior, TravelNodeStats, ETravelNodeMessage, ETravelNodeAction>(source), ITravelNodeHandle
     {
         public Coordinates Position { get; }
-        public TravelNode Source { get; } = source;
-        public TravelNodeStats Stats { get; }
-        public void EnsureUpdated()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void SendMessage(ETravelNodeMessage message)
-        {
-            throw new NotImplementedException();
-        }
-
         public IReadOnlySet<ITravelWayHandle> Blocked { get; }
         public IReadOnlySet<ITravelWayHandle> Incoming { get; }
         public IReadOnlySet<ITravelWayHandle> Outgoing { get; }
     }
 
-    protected override void TickLogic(TimeSpan timestep)
+    public override void RecieveActions(IEnumerable<ETravelNodeAction> actions)
     {
         throw new NotImplementedException();
     }

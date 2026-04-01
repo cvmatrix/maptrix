@@ -5,10 +5,13 @@ using Stats;
 using Messages;
 using Actions;
 
-internal abstract class SimTickable(SimSystem sim)
+internal abstract class SimObject<THandle, TBehavior, TStats, TMessage, TAction>(SimSystem sim, TBehavior behavior, TStats stats) where TBehavior : IBehavior<THandle, TMessage, TAction>
 {
     public int LastTicked { get; private set; } = -1;
     public SimSystem Sim { get; } = sim;
+    public TBehavior Behavior { get; } = behavior;
+    public TStats Stats { get; } = stats;
+
     public bool Tick()
     {
         var tickIndex = Sim.TickIndex;
@@ -22,5 +25,6 @@ internal abstract class SimTickable(SimSystem sim)
         return true;
     }
 
+    public abstract void RecieveActions(IEnumerable<TAction> actions);
     protected abstract void TickLogic(TimeSpan timestep);
 }
