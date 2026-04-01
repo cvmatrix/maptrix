@@ -6,22 +6,22 @@ using Messages;
 using Actions;
 internal class Traveler : SimTickable
 {
-    public Traveler(SimSystem sim, ITravelerBehavior behavior, TravelerStats stats) : base(sim)
+    public Traveler(SimSystem sim, ITravelerBehavior behavior, TravelerStats stats, TravelNode target) : base(sim)
     {
         Behavior = behavior;
         Stats = stats;
         Speed = 0;
         LastTicked = -1;
         DistanceAlongWay = 0;
-        FinalTarget = null;
+        FinalTarget = target;
+        _cachedPosition = null;
     }
-
     public ITravelerBehavior Behavior { get; }
     public double Speed { get; private set; }
     public int LastTicked { get; private set; }
     public TravelerStats Stats { get; private set; }
     public double DistanceAlongWay { get; private set; }
-    public TravelNode? FinalTarget { get; private set; }
+    public TravelNode FinalTarget { get; private set; }
 
     protected override void TickLogic(TimeSpan timestep)
     {
@@ -31,10 +31,9 @@ internal class Traveler : SimTickable
     public Handle GetHandle() => new(this);
     public class Handle : ITravelerHandle
     {
-        public Coordinates Position { get; }
         public double DistanceAlongWay => Source.DistanceAlongWay;
-        public ITravelNodeHandle FinalTarget { get; }
-        public ITravelWayHandle Traveling { get; }
+        public ITravelNodeHandle FinalTarget => Source.FinalTarget.GetHandle();
+        public ITravelWayHandle Traveling => Source.Sim.TravelerTravelingMap[Source].GetHandle();
         public Traveler Source { get; }
         public TravelerStats Stats => Source.Stats;
 

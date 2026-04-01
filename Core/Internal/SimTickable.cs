@@ -8,13 +8,13 @@ using Actions;
 internal abstract class SimTickable(SimSystem sim)
 {
     public int LastTicked { get; private set; } = -1;
-    public SimSystem SimSystem { get; } = sim;
+    public SimSystem Sim { get; } = sim;
     public bool Tick()
     {
-        var tickIndex = SimSystem.TickIndex;
+        var tickIndex = Sim.TickIndex;
         if (tickIndex <= LastTicked) return false;
         var ticks = tickIndex - LastTicked;
-        var timestep = SimSystem.CurrentTickTimestep;
+        var timestep = Sim.CurrentTickTimestep;
         LastTicked = tickIndex;
 
         for (var tick = 0; tick < ticks; tick++)

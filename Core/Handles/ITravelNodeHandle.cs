@@ -2,6 +2,7 @@
 
 public interface ITravelNodeHandle : IHandle<Messages.ETravelNodeMessage, Stats.TravelNodeStats>
 {
+    public Coordinates Position { get; }
     public IReadOnlySet<ITravelWayHandle> Blocked { get; }
     public IReadOnlySet<ITravelWayHandle> Incoming { get; }
     public IReadOnlySet<ITravelWayHandle> Outgoing { get; }
