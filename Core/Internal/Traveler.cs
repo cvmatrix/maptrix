@@ -21,7 +21,8 @@ internal class Traveler : SimObject<ITravelerHandle, ITravelerBehavior, Traveler
         throw new NotImplementedException();
     }
 
-    public Handle GetHandle() => new(this);
+    protected override ITravelerHandle GenerateHandle() => new Handle(this);
+
     public class Handle(Traveler source) : SimObjectHandle<Traveler, ITravelerHandle, ITravelerBehavior, TravelerStats, ETravelerMessage, ETravelerAction>(source), ITravelerHandle
     {
         public double DistanceAlongWay => Source.DistanceAlongWay;

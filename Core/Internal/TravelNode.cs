@@ -11,7 +11,7 @@ internal class TravelNode : SimObject<ITravelNodeHandle, ITravelNodeBehavior, Tr
     private HashSet<TravelWay> _blocked = [];
     public TravelNode(SimSystem sim, ITravelNodeBehavior behavior, TravelNodeStats stats) : base(sim, behavior, stats)
     {
-
+        
     }
 
     public required Coordinates Position
@@ -24,11 +24,11 @@ internal class TravelNode : SimObject<ITravelNodeHandle, ITravelNodeBehavior, Tr
         throw new NotImplementedException();
     }
 
-    public Handle GetHandle() => new(this);
+    protected override ITravelNodeHandle GenerateHandle() => new Handle(this);
     public class Handle(TravelNode source) : SimObjectHandle<TravelNode, ITravelNodeHandle, ITravelNodeBehavior, TravelNodeStats, ETravelNodeMessage, ETravelNodeAction>(source), ITravelNodeHandle
     {
-        public Coordinates Position { get; }
-        public IReadOnlySet<ITravelWayHandle> Blocked { get; }
+        public Coordinates Position => Source.Position;
+        public IReadOnlySet<ITravelWayHandle> Blocked = 
         public IReadOnlySet<ITravelWayHandle> Incoming { get; }
         public IReadOnlySet<ITravelWayHandle> Outgoing { get; }
     }

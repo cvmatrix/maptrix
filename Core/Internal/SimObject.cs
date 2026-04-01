@@ -11,6 +11,9 @@ internal abstract class SimObject<THandle, TBehavior, TStats, TMessage, TAction>
     public SimSystem Sim { get; } = sim;
     public TBehavior Behavior { get; } = behavior;
     public TStats Stats { get; } = stats;
+    // bro.
+    private bool _handleCached = false;
+    private THandle? _cachedHandle = default;
 
     public bool Tick()
     {
@@ -19,12 +22,23 @@ internal abstract class SimObject<THandle, TBehavior, TStats, TMessage, TAction>
         var ticks = tickIndex - LastTicked;
         var timestep = Sim.CurrentTickTimestep;
         LastTicked = tickIndex;
-
+        _handleCached = false;
+        _cachedHandle = default;
         for (var tick = 0; tick < ticks; tick++)
             TickLogic(timestep);
         return true;
     }
 
+    public THandle GetHandle()
+    {
+        if (!_handleCached)
+        {
+            _handleCached = true;
+            _cachedHandle = GenerateHandle();
+        }
+        return _cachedHandle!;
+    }
+    protected abstract THandle GenerateHandle();
     public abstract void RecieveActions(IEnumerable<TAction> actions);
     protected abstract void TickLogic(TimeSpan timestep);
 }
