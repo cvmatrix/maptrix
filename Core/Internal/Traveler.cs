@@ -18,6 +18,7 @@ internal class Traveler : SimObject<ITravelerHandle, ITravelerBehavior, Traveler
 
     protected override void TickLogic(TimeSpan timestep)
     {
+        Speed = double.Clamp(Speed + Stats.Acceleration * timestep.TotalSeconds, 0, Stats.MaxSpeed);
         throw new NotImplementedException();
     }
 
@@ -32,6 +33,11 @@ internal class Traveler : SimObject<ITravelerHandle, ITravelerBehavior, Traveler
 
     public override void RecieveActions(IEnumerable<ETravelerAction> actions)
     {
-        throw new NotImplementedException();
+        foreach (var action in actions)
+            switch (action)
+            {
+                default:
+                    throw new NotSupportedException();
+            }
     }
 }

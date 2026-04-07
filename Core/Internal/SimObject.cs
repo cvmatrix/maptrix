@@ -4,7 +4,7 @@ using Handles;
 using Stats;
 using Messages;
 using Actions;
-
+using BehaviorContexts;
 internal abstract class SimObject<THandle, TBehavior, TStats, TMessage, TAction>(SimSystem sim, TBehavior behavior, TStats stats) where TBehavior : IBehavior<THandle, TMessage, TAction>
 {
     public int LastTicked { get; private set; } = -1;
@@ -25,10 +25,25 @@ internal abstract class SimObject<THandle, TBehavior, TStats, TMessage, TAction>
         _handleCached = false;
         _cachedHandle = default;
         for (var tick = 0; tick < ticks; tick++)
+        {
+            RecieveActions(Behavior.OnTick(new TickContext()
+            {
+                Environment = Sim,
+                Self = GetHandle(),
+                TimeStep = timestep,
+            }));
             TickLogic(timestep);
+        }
+            
         return true;
     }
 
+    private class TickContext : IOnTickContext<THandle>
+    {
+        public required ISimEnvironment Environment { get; init; }
+        public required THandle Self { get; init; }
+        public required TimeSpan TimeStep { get; init; }
+    }
     public THandle GetHandle()
     {
         if (!_handleCached)

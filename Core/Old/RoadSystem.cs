@@ -61,7 +61,6 @@ public class RoadSystem
 
         foreach (var way in ways)
         {
-            // LEFTOFF
         }
 
         HashSet<CleanWay> __MergeAccountedLookup(ulong nodeId)
