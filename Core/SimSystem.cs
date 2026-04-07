@@ -26,9 +26,23 @@ public class SimSystem : ISimEnvironment
     internal List<Traveler> Travelers { get; set; } = [];
     internal List<TravelWay> Ways { get; set; } = [];
 
-    // type shit.
-    internal IReadOnlyList<(TravelNode Node, double TotalCost)>? GetNaiveOptimalRoute(TravelNode from, TravelNode to, ERoadType roadType)
+    internal IReadOnlyList<(TravelNode Node, double TotalCost)>? GetNaiveOptimalRoute(TravelNode from, TravelNode to, ERoadType roadType) => GetNaiveOptimalRouteImpl(from, to, roadType, []);
+    
+    public void AddOverpassData(CleanData data)
     {
+        lock (_interactionLock)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    // this is depth-first 
+    // but also dynamically caching 
+    // but also the caching stores a shitton of redundancy
+    // should implement with dumb linkedlist nodes
+    private IReadOnlyList<(TravelNode Node, double TotalCost)>? GetNaiveOptimalRouteImpl(TravelNode from, TravelNode to, ERoadType roadType, HashSet<TravelNode> visited)
+    {
+        if (!visited.Add(from)) return null;
         if (from.Equals(to)) return [];
         if (_naiveOptimalRouteMap.TryGetValue(from, out var f) &&
             f.TryGetValue(to, out var t) &&
@@ -42,7 +56,7 @@ public class SimSystem : ISimEnvironment
         foreach (var outgoing in matchingOutgoings)
         {
             var nextNode = TravelWayConnectionMap[outgoing].To;
-            var nextRoute = GetNaiveOptimalRoute(from, nextNode, roadType);
+            var nextRoute = GetNaiveOptimalRoute(nextNode, to, roadType);
             if (nextRoute == null) continue;
             var thisCost = (nextRoute.Count > 0 ? nextRoute[0].TotalCost : 0) + outgoing.Distance / outgoing.NaiveAssumedSpeed;
             if (bestRoute is null || bestRoute.Value.TotalCost > thisCost)
@@ -54,15 +68,24 @@ public class SimSystem : ISimEnvironment
             return null;
         }
         var br = bestRoute.Value;
-        IReadOnlyList<(TravelNode Node, double TotalCost)> o = [(br.AddedNode, br.TotalCost), ..br.ForwardRoute];
+        IReadOnlyList<(TravelNode Node, double TotalCost)> o = [(br.AddedNode, br.TotalCost), .. br.ForwardRoute];
         _naiveOptimalRouteMap[from][to][roadType] = o;
         return o;
     }
-    public void AddOverpassData(CleanData data)
+    internal void RecalculateNaiveOptimalRoutes(TravelNode from, ERoadType roadType)
     {
-        lock (_interactionLock)
+        if (!_naiveOptimalRouteMap.TryGetValue(from, out var fromMap)) return;
+        foreach (var toMap in fromMap.Values)
+            toMap.Remove(roadType);
+        foreach (var incoming in TravelNodeConnectionMap[from].Incoming)
         {
-            throw new NotImplementedException();
+            var parentNode = TravelWayConnectionMap[incoming].From;
+            if (!_naiveOptimalRouteMap.TryGetValue(parentNode, out var parentMap)) continue;
+            foreach (var parentRoutes in parentMap.Values)
+            {
+                if (parentRoutes.TryGetValue(roadType, out var route) && route?[0].Node == from)
+                    RecalculateNaiveOptimalRoutes(parentNode, roadType);
+            }
         }
     }
 
