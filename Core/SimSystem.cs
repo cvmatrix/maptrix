@@ -15,7 +15,7 @@ public class SimSystem : ISimEnvironment
     internal TimeSpan CurrentTickTimestep { get; private set; }
     internal Dictionary<Traveler, TravelWay> TravelerTravelingMap { get; set; } = [];
     internal Dictionary<TravelWay, List<Traveler>> TravelWayTravelingMap { get; set; } = [];
-    internal Dictionary<Traveler, int> TravelerPositionOnWayMap { get; set; } = [];
+    internal Dictionary<Traveler, int> TravelerIndexOnWayMap { get; set; } = [];
     internal Dictionary<TravelWay, (TravelNode From, TravelNode To)> TravelWayConnectionMap { get; set; } = [];
     internal Dictionary<TravelNode, (List<TravelWay> Incoming, List<TravelWay> Outgoing)> TravelNodeConnectionMap { get; set; } = [];
     /// <summary>
