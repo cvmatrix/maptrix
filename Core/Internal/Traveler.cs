@@ -53,9 +53,8 @@ internal class Traveler : SimObject<ITravelerHandle, ITravelerBehavior, Traveler
         throw new NotImplementedException();
     }
 
-    private (double Distance, double Speed)? GetClosestBlockage()
+    private (double Distance, double Speed)? GetClosestTrafficBlockage(TravelWay way, double sightDistance, double fromDistance)
     {
-        var way = Sim.TravelerTravelingMap[this];
         var travelers = Sim.TravelWayTravelingMap[way];
         var lanes = way.Stats.LaneCount;
         var blocking = new Queue<Traveler>();
@@ -63,7 +62,7 @@ internal class Traveler : SimObject<ITravelerHandle, ITravelerBehavior, Traveler
         for (var i = Sim.TravelerIndexOnWayMap[this] + 1; i + lanes < travelers.Count; i++)
         {
             var other = travelers[i];
-            if (other.DistanceAlongWay > DistanceAlongWay + Stats.SightDistance) break;
+            if (other.DistanceAlongWay > fromDistance + sightDistance) break;
             var backReach = other.DistanceAlongWay - other.Stats.Size;
             while (blocking.TryPeek(out var first) && first.DistanceAlongWay < backReach)
                 blocking.Dequeue();

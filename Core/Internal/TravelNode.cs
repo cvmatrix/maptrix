@@ -13,6 +13,9 @@ internal class TravelNode : SimObject<ITravelNodeHandle, ITravelNodeBehavior, Tr
     }
 
     public required Coordinates Position { get; set; }
+    /// <summary>
+    /// Must be a subset of incoming.
+    /// </summary>
     public HashSet<TravelWay> Blocked { get; set; } = [];
     protected override void TickLogic(TimeSpan timestep)
     {
