@@ -1,6 +1,6 @@
 ﻿namespace CVMatrix.DropOffDefense.SLib.Core;
 
-public interface ILocNode
+public interface ILocNode : ILocMapElement, ILocTaggable<Tags.ILocNodeTag>
 {
     public Coordinates Position { get; }
     public IReadOnlySet<ILocWay> Incoming { get; }

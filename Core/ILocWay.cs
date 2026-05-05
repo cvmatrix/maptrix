@@ -1,6 +1,6 @@
 ﻿namespace CVMatrix.DropOffDefense.SLib.Core;
 
-public interface ILocWay
+public interface ILocWay : ILocMapElement, ILocTaggable<Tags.ILocWayTag>
 {
     public float Distance { get; }
     public int WayConnectionId { get; }
