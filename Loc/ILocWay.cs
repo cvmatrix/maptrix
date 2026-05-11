@@ -1,4 +1,4 @@
-﻿namespace CVMatrix.DropOffDefense.SLib.Core;
+﻿namespace CVMatrix.DropOffDefense.SLib.Loc;
 
 public interface ILocWay : ILocMapElement, ILocTaggable<Tags.ILocWayTag>
 {
@@ -7,6 +7,5 @@ public interface ILocWay : ILocMapElement, ILocTaggable<Tags.ILocWayTag>
     public IReadOnlyList<Coordinates> Path { get; }
     public ILocNode From { get; }
     public ILocNode To { get; }
-    public ILocWay? TwoWay { get; }
-    public Data.EWayType Type { get; }
+    public ILocWay? AdjacentReverse { get; }
 }

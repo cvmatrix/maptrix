@@ -1,4 +1,4 @@
-﻿namespace CVMatrix.DropOffDefense.SLib.Core;
+﻿namespace CVMatrix.DropOffDefense.SLib.Loc;
 
 public interface ILocNode : ILocMapElement, ILocTaggable<Tags.ILocNodeTag>
 {
