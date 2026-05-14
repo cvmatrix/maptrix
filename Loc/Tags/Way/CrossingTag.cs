@@ -1,5 +1,8 @@
 ﻿namespace CVMatrix.DropOffDefense.SLib.Loc.Tags.Way;
 
+/// <summary>
+/// <i>Subtag of: <see cref="FootwayTag.EValue.Crossing"/></i>
+/// </summary>
 public sealed record CrossingTag : IWayTag
 {
     public enum EValue

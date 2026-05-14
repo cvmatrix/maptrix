@@ -1,5 +1,8 @@
 ﻿namespace CVMatrix.DropOffDefense.SLib.Loc.Tags.Way;
 
+/// <summary>
+/// <i>Subtag of: <see cref="WayTypeTag.EValue.ServiceRoad"/></i>
+/// </summary>
 public sealed record ServiceRoadTag : IWayTag
 {
     public enum EValue
