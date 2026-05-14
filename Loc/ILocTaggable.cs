@@ -1,6 +1,6 @@
 ﻿namespace CVMatrix.DropOffDefense.SLib.Loc;
 
-public interface ILocTaggable<in TTagType> where TTagType : class, Tags.ILocElementTag
+public interface ILocTaggable<in TTagType> where TTagType : class, Tags.ITag
 {
     public T? GetTag<T>() where T : class, TTagType;
 }

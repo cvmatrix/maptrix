@@ -1,0 +1,20 @@
+﻿namespace CVMatrix.DropOffDefense.SLib.Loc.Tags.Way;
+
+public sealed record FootwayTag : IWayTag
+{
+    public enum EValue
+    {
+        /// <summary>
+        /// Pedestrian sidewalk.
+        /// </summary>
+        Sidewalk,
+        /// <summary>
+        /// Padestrian road-crossing.<br></br>
+        /// <br></br>
+        /// <i>Primary subtag: <see cref="CrossingTag"/></i>
+        /// </summary>
+        Crossing,
+    }
+    public required EValue? Value { get; init; }
+    public required string RawValue { get; init; }
+}
