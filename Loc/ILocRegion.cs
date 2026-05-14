@@ -2,6 +2,6 @@
 
 public interface ILocRegion : ILocMapElement, ILocTaggable<Tags.ILocRegionTag>
 {
-    public IReadOnlyList<Coordinates> Boundary { get; }
+    public IReadOnlyList<LocCoordinates> Boundary { get; }
     public IReadOnlySet<ILocMapElement> EncompassedElements { get; }
 }

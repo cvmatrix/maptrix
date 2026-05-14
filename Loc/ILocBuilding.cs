@@ -2,5 +2,5 @@
 
 public interface ILocBuilding : ILocMapElement, ILocTaggable<Tags.ILocBuildingTag>
 {
-    public IReadOnlyList<Coordinates> Boundary { get; }
+    public IReadOnlyList<LocCoordinates> Boundary { get; }
 }

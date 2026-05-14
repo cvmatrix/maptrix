@@ -10,5 +10,8 @@ public class LocMap
 
     }
 
-    public Task<LocMap> GenerateUsingOverpass()
+    public static Task<LocMap> GenerateNew(RawCoordinates center, double radius)
+    {
+        throw new NotImplementedException();
+    }
 }

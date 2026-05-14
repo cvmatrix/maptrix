@@ -1,8 +1,8 @@
 ﻿namespace CVMatrix.DropOffDefense.SLib.Loc;
 
-public interface ILocNode : ILocMapElement, ILocTaggable<Tags.ILocNodeTag>
+public interface ILocIntersection : ILocMapElement, ILocTaggable<Tags.ILocIntersectionTag>
 {
-    public Coordinates Position { get; }
+    public LocCoordinates Position { get; }
     public IReadOnlySet<ILocWay> Incoming { get; }
     public IReadOnlySet<ILocWay> Outgoing { get; }
 }

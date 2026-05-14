@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Loc\Tags\Node\" />
+    <Folder Include="Loc\Tags\Intersection\" />
   </ItemGroup>
 
 </Project>
