@@ -11,6 +11,7 @@ public sealed record BuildingTag : IWayTag
         Apartments,
         Commercial,
         Industrial,
+        Retail,
     }
     public required EValue? Value { get; init; }
     public required string RawValue { get; init; }
