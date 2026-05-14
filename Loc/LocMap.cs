@@ -5,12 +5,14 @@ using OverpassAPI.Model;
 
 public class LocMap
 {
+    public RawEarthCoordinates ProjectionOrigin { get; }
+
     private LocMap()
     {
 
     }
 
-    public static Task<LocMap> GenerateNew(RawCoordinates center, double radius)
+    public static LocMap FromOverpassData(OverpassAPI.Model.Clean.CleanData data, RawEarthCoordinates projectionOrigin)
     {
         throw new NotImplementedException();
     }
