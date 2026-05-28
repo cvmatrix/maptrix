@@ -2,11 +2,11 @@ namespace CVMatrix.DropOffDefense.SLib.Util.ErgoLock;
 
 using System.Threading;
 
-public class ErgoLockWriteScope : IDisposable
+public class WriteErgoLockScope : IDisposable
 {
     private readonly ReaderWriterLockSlim _parentLock;
 
-    public ErgoLockWriteScope(ReaderWriterLockSlim parentLock)
+    public WriteErgoLockScope(ReaderWriterLockSlim parentLock)
     {
         _parentLock = parentLock;
         _parentLock.EnterWriteLock();
