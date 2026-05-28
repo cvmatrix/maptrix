@@ -6,12 +6,12 @@ using System.Text.Json.Serialization;
 using System.Text.Json;
 public class OverpassClient : IDisposable
 {
-    private readonly HttpClient _httpClient = new HttpClient()
+    private readonly HttpClient _httpClient = new()
     {
         BaseAddress = new Uri("https://overpass-api.de")
     };
 
-    public async Task<(string ResponseJsonText, RawResponse ResponseModel)> MakeQuery(string overpassql)
+    public async Task<Response> MakeQuery(string overpassql)
     {
         var body = new FormUrlEncodedContent([new("data", overpassql)]);
 
@@ -22,11 +22,14 @@ public class OverpassClient : IDisposable
             PropertyNameCaseInsensitive = true,
         };
         var responseString = await response.Content.ReadAsStringAsync();
-        return (responseString, JsonSerializer.Deserialize<RawResponse>(responseString, options)!);
+        return new(responseString, JsonSerializer.Deserialize<RawResponse>(responseString, options)!);
     }
 
+    public Task<Response> MakeQuery(OverpassQuery query) => MakeQuery(query.AsQL());
     public void Dispose()
     {
         _httpClient.Dispose();
     }
+
+    public record Response(string RawJson, RawResponse Model);
 }
