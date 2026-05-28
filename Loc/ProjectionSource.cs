@@ -1,11 +1,11 @@
 namespace CVMatrix.DropOffDefense.SLib.Loc;
 
-public sealed record ProjectionData
+public sealed record ProjectionSource
 {
     public RawEarthCoordinates Origin { get; }
     public double EarthRadius { get; }
-    private OriginData _originData { get; }
-    internal ProjectionData(RawEarthCoordinates origin, double earthRadius)
+    private readonly OriginData _originData;
+    public ProjectionSource(RawEarthCoordinates origin, double earthRadius)
     {
         Origin = origin;
         EarthRadius = earthRadius;

@@ -2,5 +2,5 @@
 
 public interface ILocPoi : ILocMapElement, ILocTaggable<Tags.IPoiTag>
 {
-    public LocCoordinates Position { get; }
+    public ILocCoordinates Position { get; }
 }

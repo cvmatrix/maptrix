@@ -4,7 +4,7 @@ public interface ILocWay : ILocMapElement, ILocTaggable<Tags.IWayTag>
 {
     public float Distance { get; }
     public int WayConnectionId { get; }
-    public IReadOnlyList<LocCoordinates> Path { get; }
+    public IReadOnlyList<ILocCoordinates> Path { get; }
     public ILocIntersection From { get; }
     public ILocIntersection To { get; }
     public ILocWay? AdjacentReverse { get; }

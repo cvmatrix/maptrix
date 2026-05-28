@@ -2,7 +2,7 @@
 
 public interface ILocRegion : ILocMapElement, ILocTaggable<Tags.IRegionTag>
 {
-    public IReadOnlyList<LocCoordinates> Boundary { get; }
-    public IReadOnlyList<LocCoordinates>? SubtractiveBoundary { get; }
+    public IReadOnlyList<ILocCoordinates> Boundary { get; }
+    public IReadOnlyList<ILocCoordinates>? SubtractiveBoundary { get; }
     public IReadOnlySet<ILocMapElement> EncompassedElements { get; }
 }
