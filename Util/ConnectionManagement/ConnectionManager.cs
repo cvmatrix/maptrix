@@ -73,18 +73,8 @@ public class ConnectionManager<TNode, TEdge>
         public readonly NodeInfo InfoObject = info;
         private readonly ErgoLock _lock = info.Parent._lock;
 
-        public IReadOnlySet<TEdge> Incoming
-        {
-            get
-            {
-                using (_lock.ReadScope)
-                {
-                    return InfoObject.Incoming;
-                }
-            }
-        }
-
-        public IReadOnlySet<TEdge> Outgoing => throw new NotImplementedException();
+        public IReadOnlySet<TEdge> Incoming => _lock.InReadScope(() => InfoObject.Incoming);
+        public IReadOnlySet<TEdge> Outgoing => _lock.InReadScope(() => InfoObject.Outgoing);
 
         ~NodeHandle()
         {
