@@ -31,5 +31,5 @@ public class OverpassClient : IDisposable
         _httpClient.Dispose();
     }
 
-    public record Response(string RawJson, RawResponse Model);
+    public record Response(string Json, RawResponse Model);
 }
