@@ -1,7 +1,9 @@
 namespace CVMatrix.DropOffDefense.SLib.Loc;
 
-public sealed record ProjectionSource
+public record ProjectionSource
 {
+    public const double EARTH_RADIUS_METERS = 6_371_000.0;
+    public const double EARTH_RADIUS_FEET = 20_902_230.0;
     public RawEarthCoordinates Origin { get; }
     public double EarthRadius { get; }
     private readonly OriginData _originData;

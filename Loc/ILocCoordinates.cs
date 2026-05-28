@@ -2,7 +2,7 @@
 
 public interface ILocCoordinates
 {
-    public ProjectionSource SourceMap { get; }
+    public ProjectionSource Source { get; }
     public PlanarCoordinates Local { get; }
     public RawEarthCoordinates Raw { get; }
 
