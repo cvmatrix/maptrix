@@ -3,10 +3,11 @@ namespace CVMatrix.DropOffDefense.SLib.Util.ConnectionManagement;
 using Loc;
 using Loc.Tags;
 using System.Threading;
+using Util.ErgoLock;
 
 public class ConnectionManager<TNode, TEdge>
 {
-    private readonly ReaderWriterLockSlim _lock = new();
+    private readonly ErgoLock _lock = new();
     public void Connect(EConnectionDirection direction, TNode node, TEdge edge)
     {
         throw new NotImplementedException();

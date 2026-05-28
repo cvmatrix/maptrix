@@ -2,12 +2,12 @@ namespace CVMatrix.DropOffDefense.SLib.Util.ErgoLock;
 
 using System.Threading;
 
-public class ErgoLockUpgradeableScope : IDisposable
+public class UpgradeableErgoLockScope : IDisposable
 {
     private readonly ReaderWriterLockSlim _parentLock;
     private bool _upgraded = false;
     private bool _disposed = false;
-    public ErgoLockUpgradeableScope(ReaderWriterLockSlim parentLock)
+    public UpgradeableErgoLockScope(ReaderWriterLockSlim parentLock)
     {
         _parentLock = parentLock;
         _parentLock.EnterUpgradeableReadLock();
@@ -15,7 +15,7 @@ public class ErgoLockUpgradeableScope : IDisposable
 
     public void UpgradeToWrite()
     {
-        if (_disposed) throw new ObjectDisposedException("ErgoLockUgradeableScope");
+        if (_disposed) throw new ObjectDisposedException("UpgradeableErgoLockScope");
         if (_upgraded) return;
         _parentLock.EnterWriteLock();
         _upgraded = true;
