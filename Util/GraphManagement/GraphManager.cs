@@ -13,6 +13,20 @@ public class GraphManager<TNode, TEdge>
     private readonly Dictionary<TNode, NodeInfo> _nodes = [];
     private readonly ErgoLock _lock = new();
 
+    public KeyValuePair<TEdge, IEdgeHandle<TNode>>[] GetEdges()
+    {
+        using var _ = _lock.ReadScope;
+        return _edges.Keys
+            .Select(x => new KeyValuePair<TEdge, IEdgeHandle<TNode>>(x, new EdgeHandle(x, this)))
+            .ToArray();
+    }
+    public KeyValuePair<TNode, INodeHandle<TEdge>>[] GetNodes()
+    {
+        using var _ = _lock.ReadScope;
+        return _nodes.Keys
+            .Select(x => new KeyValuePair<TNode, INodeHandle<TEdge>>(x, new NodeHandle(x, this)))
+            .ToArray();
+    }
     public void Connect(EConnectionDirection direction, TNode node, TEdge edge)
     {
         using var _ = _lock.WriteScope;
