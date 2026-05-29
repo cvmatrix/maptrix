@@ -12,32 +12,32 @@ public class ErgoLock : IDisposable
         InternalLock.Dispose();
     }
 
-    public T InReadScope<T>(Func<T> func)
+    public T InlineReadScope<T>(Func<T> func)
     {
         using var _ = ReadScope;
         return func();
     }
-    public void InReadScope(Action action)
+    public void InlineReadScope(Action action)
     {
         using var _ = ReadScope;
         action();
     }
-    public T InWriteScope<T>(Func<T> func)
+    public T InlineWriteScope<T>(Func<T> func)
     {
         using var _ = WriteScope;
         return func();
     }
-    public void InWriteScope(Action action)
+    public void InlineWriteScope(Action action)
     {
         using var _ = WriteScope;
         action();
     }
-    public T InUpgradeableScope<T>(Func<UpgradeableErgoLockScope, T> func)
+    public T InlineUpgradeableScope<T>(Func<UpgradeableErgoLockScope, T> func)
     {
         using var scope = UpgradeableScope;
         return func(scope);
     }
-    public void InUpgradeableScope(Action<UpgradeableErgoLockScope> action)
+    public void InlineUpgradeableScope(Action<UpgradeableErgoLockScope> action)
     {
         using var scope = UpgradeableScope; 
         action(scope);

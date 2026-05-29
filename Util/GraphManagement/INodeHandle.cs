@@ -1,5 +1,4 @@
-namespace CVMatrix.DropOffDefense.SLib.Util.ConnectionManagement;
-
+namespace CVMatrix.DropOffDefense.SLib.Util.GraphManagement;
 using Loc;
 using Loc.Tags;
 
