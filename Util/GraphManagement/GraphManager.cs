@@ -9,15 +9,15 @@ public class GraphManager<TNode, TEdge>
     where TNode : class
     where TEdge : class
 {
-    private readonly ErgoLock _lock = new();
     private readonly Dictionary<TEdge, EdgeInfo> _edges = [];
     private readonly Dictionary<TNode, NodeInfo> _nodes = [];
+    private readonly ErgoLock _lock = new();
 
     public void Connect(EConnectionDirection direction, TNode node, TEdge edge)
     {
         using var _ = _lock.WriteScope;
-        _edges.TryAdd(edge, new EdgeInfo(edge, this));
-        _nodes.TryAdd(node, new NodeInfo(node, this));
+        _edges.TryAdd(edge, new(edge, this));
+        _nodes.TryAdd(node, new(node, this));
         var edgeInfo = _edges[edge];
         var nodeInfo = _nodes[node];
 
@@ -31,6 +31,7 @@ public class GraphManager<TNode, TEdge>
                     existingTo.Incoming.Remove(edge);
                     if (existingTo.IsInsignificant) _nodes.Remove(existingToKey);
                 }
+
                 edgeInfo.To = node;
                 nodeInfo.Incoming.Add(edge);
                 break;
@@ -43,6 +44,7 @@ public class GraphManager<TNode, TEdge>
                     existingTo.Incoming.Remove(edge);
                     if (existingTo.IsInsignificant) _nodes.Remove(existingFromKey);
                 }
+
                 edgeInfo.From = node;
                 nodeInfo.Outgoing.Add(edge);
                 break;
@@ -62,6 +64,7 @@ public class GraphManager<TNode, TEdge>
             edgeInfo.To = null;
             nodeInfo.Incoming.Remove(edge);
         }
+
         if (edgeInfo.From == node)
         {
             edgeInfo.From = null;
@@ -84,12 +87,14 @@ public class GraphManager<TNode, TEdge>
             node.Incoming.Remove(edge);
             if (node.IsInsignificant) _nodes.Remove(toKey);
         }
+
         if (info.From is { } fromKey)
         {
             var node = _nodes[fromKey];
             node.Outgoing.Remove(edge);
             if (node.IsInsignificant) _nodes.Remove(fromKey);
         }
+
         _edges.Remove(edge);
     }
 
@@ -104,28 +109,27 @@ public class GraphManager<TNode, TEdge>
             edge.To = null;
             if (edge.IsInsignificant) _edges.Remove(edgeKey);
         }
+
         foreach (var edgeKey in info.Outgoing)
         {
             var edge = _edges[edgeKey];
             edge.From = null;
             if (edge.IsInsignificant) _edges.Remove(edgeKey);
         }
+
         _nodes.Remove(node);
     }
 
-    public IEdgeHandle<TNode> GetEdge(TEdge edge) => new EdgeHandle(edge, this);
-    public INodeHandle<TEdge> GetNode(TNode node) => new NodeHandle(node, this);
+    public IEdgeHandle<TNode> GetEdge(TEdge edge)
+    {
+        return new EdgeHandle(edge, this);
+    }
 
-    protected EdgeInfo? GetEdgeInfo(TEdge edge)
+    public INodeHandle<TEdge> GetNode(TNode node)
     {
-        using var _ = _lock.ReadScope;
-        return _edges.GetValueOrDefault(edge);
+        return new NodeHandle(node, this);
     }
-    protected NodeInfo? GetNodeInfo(TNode node)
-    {
-        using var _ = _lock.ReadScope;
-        return _nodes.GetValueOrDefault(node);
-    }
+
     public void SwapEdge(TEdge oldEdge, TEdge newEdge)
     {
         using var _ = _lock.WriteScope;
@@ -148,15 +152,14 @@ public class GraphManager<TNode, TEdge>
         public readonly TEdge KeyObject = node;
         public TNode? From => Parent.GetEdgeInfo(KeyObject)?.From;
         public TNode? To => Parent.GetEdgeInfo(KeyObject)?.To;
-
     }
 
     protected class EdgeInfo(TEdge edge, GraphManager<TNode, TEdge> parent)
     {
         public readonly GraphManager<TNode, TEdge> Parent = parent;
         public TEdge KeyObject = edge;
-        public TNode? From { get; set; } = null;
-        public TNode? To { get; set; } = null;
+        public TNode? From { get; set; }
+        public TNode? To { get; set; }
         public bool IsInsignificant => To is null && From is null;
     }
 
@@ -175,5 +178,17 @@ public class GraphManager<TNode, TEdge>
         public HashSet<TEdge> Incoming { get; set; } = [];
         public HashSet<TEdge> Outgoing { get; set; } = [];
         public bool IsInsignificant => Incoming.Count == 0 && Outgoing.Count == 0;
+    }
+
+    protected EdgeInfo? GetEdgeInfo(TEdge edge)
+    {
+        using var _ = _lock.ReadScope;
+        return _edges.GetValueOrDefault(edge);
+    }
+
+    protected NodeInfo? GetNodeInfo(TNode node)
+    {
+        using var _ = _lock.ReadScope;
+        return _nodes.GetValueOrDefault(node);
     }
 }
