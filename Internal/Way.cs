@@ -3,12 +3,17 @@ namespace CVMatrix.DropOffDefense.SLib.Internal;
 using Loc;
 using Loc.Tags;
 using System.Numerics;
+using Util.GraphManagement;
 
 internal class Way : TaggableMapElement<IWayTag>, ILocWay
 {
     public float PathLength { get; private set; }
     public required int WayConnectionId { get; set; }
     public Way? AdjacentReverse { get; private set; }
+
+    // DEV: it should be enforced that this edge always has From and To nodes before public exposure.
+    public Intersection From => GetHandle().From!;
+    public Intersection To => GetHandle().To!;
 
     public required IReadOnlyList<Coordinates> Path
     {
@@ -20,12 +25,12 @@ internal class Way : TaggableMapElement<IWayTag>, ILocWay
         }
     }
 
+    private IEdgeHandle<Intersection> _graphHandle = null!;
+
     private IReadOnlyList<Coordinates> _path = [];
     float ILocWay.PathLength => PathLength;
-
-    ILocIntersection ILocWay.From => throw new NotImplementedException();
-
-    ILocIntersection ILocWay.To => throw new NotImplementedException();
+    ILocIntersection ILocWay.From => From;
+    ILocIntersection ILocWay.To => To;
 
     ILocWay? ILocWay.AdjacentReverse => AdjacentReverse;
     int ILocWay.WayConnectionId => WayConnectionId;
@@ -41,11 +46,17 @@ internal class Way : TaggableMapElement<IWayTag>, ILocWay
         return formerReverse;
     }
 
-    public Way CreateAdjacentReverse()
+    public Way CreateAdjacentReverse(int? connectionId)
     {
-        Way reverseWay = null!;
-        throw new NotImplementedException();
-
+        Way reverseWay = new()
+        {
+            WayConnectionId = connectionId ?? WayConnectionId,
+            Path = Path.Reverse().ToList(),
+            SourceMap = SourceMap,
+            RawTags = RawTags
+        };
+        SourceMap.Graph.Connect(EConnectionDirection.From, To, reverseWay);
+        SourceMap.Graph.Connect(EConnectionDirection.To, From, reverseWay);
         if (AdjacentReverse is { } existingReverse)
             existingReverse.AdjacentReverse = null;
         AdjacentReverse = reverseWay;
@@ -56,6 +67,12 @@ internal class Way : TaggableMapElement<IWayTag>, ILocWay
     protected override IWayTag? SerializeTag(string key, string value)
     {
         throw new NotImplementedException();
+    }
+
+    private IEdgeHandle<Intersection> GetHandle()
+    {
+        _graphHandle = _graphHandle ?? SourceMap.Graph.GetEdge(this);
+        return _graphHandle;
     }
 
     private static float GetPathLength(IEnumerable<Coordinates> path)

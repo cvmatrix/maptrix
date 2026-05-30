@@ -1,4 +1,4 @@
-namespace CVMatrix.DropOffDefense.SLib.Util;
+namespace CVMatrix.DropOffDefense.SLib.Util.Collections;
 
 using System.Collections;
 
@@ -15,7 +15,7 @@ internal class MappedSetView<TOriginal, TMapped>(IReadOnlySet<TOriginal> origina
         return OriginalSet.Contains(ComparisonFunction(item));
     }
 
-    public IEnumerator<TMapped> GetEnumerator() => OriginalSet.Select(MapFunction).GetEnumerator());
+    public IEnumerator<TMapped> GetEnumerator() => OriginalSet.Select(MapFunction).GetEnumerator();
 
     public bool IsProperSubsetOf(IEnumerable<TMapped> other)
     {

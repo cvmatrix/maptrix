@@ -7,8 +7,7 @@ internal abstract class TaggableMapElement<TTagType> : ILocMapElement, ILocTagga
 {
     public HashSet<ILocRegion> InRegions { get; } = [];
     public required LocMap SourceMap { get; init; }
-
-    public required IEnumerable<KeyValuePair<string, string>> RawTags
+    public required IReadOnlyDictionary<string, string> RawTags
     {
         set
         {
@@ -18,17 +17,12 @@ internal abstract class TaggableMapElement<TTagType> : ILocMapElement, ILocTagga
                 if (SerializeTag(k, v) is { } serialTag)
                     _serialTagMap.Add(serialTag.GetType(), serialTag);
         }
-    }
-
-    public required LocMap Source
-    {
-        init => SourceMap = value;
+        get => _rawTags;
     }
 
     private Dictionary<string, string> _rawTags = [];
     private Dictionary<Type, TTagType> _serialTagMap = [];
 
-    IReadOnlyDictionary<string, string>? ILocMapElement.RawTags => _rawTags;
     IReadOnlySet<ILocRegion> ILocMapElement.InRegions => InRegions;
 
     public TTag? GetTag<TTag>() where TTag : class, TTagType

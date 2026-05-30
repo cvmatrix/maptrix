@@ -7,7 +7,7 @@ using Util.GraphManagement;
 using Internal;
 public class LocMap
 {
-    private GraphManager<Intersection, Way> _graph = new();
+    internal GraphManager<Intersection, Way> Graph = new();
     public ProjectionSource Projection { get; }
     public IReadOnlySet<ILocRegion> Regions { get; }
     public IReadOnlySet<ILocIntersection> Intersections { get; }

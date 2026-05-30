@@ -1,4 +1,4 @@
-namespace CVMatrix.DropOffDefense.SLib.Util;
+namespace CVMatrix.DropOffDefense.SLib.Util.Collections;
 
 internal static class Extensions
 {
