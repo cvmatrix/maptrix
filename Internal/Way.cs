@@ -71,7 +71,7 @@ internal class Way : TaggableMapElement<IWayTag>, ILocWay
 
     private IEdgeHandle<Intersection> GetHandle()
     {
-        _graphHandle = _graphHandle ?? SourceMap.Graph.GetEdge(this);
+        _graphHandle ??= SourceMap.Graph.GetEdge(this);
         return _graphHandle;
     }
 
