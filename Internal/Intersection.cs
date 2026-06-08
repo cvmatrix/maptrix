@@ -4,9 +4,13 @@ using Loc;
 using Loc.Tags;
 using Util.GraphManagement;
 using Util.Collections;
-internal class Intersection : TaggableMapElement<IIntersectionTag>, ILocIntersection
+using Util.RegionManagement;
+
+internal class Intersection : TaggableMapElement<IIntersectionTag>, ILocIntersection, IPointElement
 {
     private INodeHandle<Way> _graphHandle = null!;
+    protected override IElementHandle<Region> GetRegionElementHandle(RegionManager<Region, Way, IPointElement> manager) => manager.GetPoint(this);
+
     protected override IIntersectionTag? SerializeTag(string key, string value)
     {
         throw new NotImplementedException();
@@ -24,7 +28,7 @@ internal class Intersection : TaggableMapElement<IIntersectionTag>, ILocIntersec
 
     private INodeHandle<Way> GetHandle()
     {
-        _graphHandle ??= SourceMap.Graph.GetNode(this);
+        _graphHandle ??= SourceMap.GraphManager.GetNode(this);
         return _graphHandle;
     }
 }

@@ -2,9 +2,12 @@ namespace CVMatrix.DropOffDefense.SLib.Internal;
 
 using Loc;
 using Loc.Tags;
+using Util.RegionManagement;
 
 internal class Region : TaggableMapElement<IRegionTag>, ILocRegion
 {
+    protected override IElementHandle<Region> GetRegionElementHandle(RegionManager<Region, Way, IPointElement> manager) => manager.GetRegion(this);
+
     protected override IRegionTag? SerializeTag(string key, string value)
     {
         throw new NotImplementedException();

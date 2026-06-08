@@ -4,6 +4,7 @@ using Loc;
 using Loc.Tags;
 using System.Numerics;
 using Util.GraphManagement;
+using Util.RegionManagement;
 
 internal class Way : TaggableMapElement<IWayTag>, ILocWay
 {
@@ -12,8 +13,8 @@ internal class Way : TaggableMapElement<IWayTag>, ILocWay
     public Way? AdjacentReverse { get; private set; }
 
     // DEV: it should be enforced that this edge always has From and To nodes before public exposure.
-    public Intersection From => GetHandle().From!;
-    public Intersection To => GetHandle().To!;
+    public Intersection From => AccessGraphHandle().From!;
+    public Intersection To => AccessGraphHandle().To!;
 
     public required IReadOnlyList<Coordinates> Path
     {
@@ -25,7 +26,7 @@ internal class Way : TaggableMapElement<IWayTag>, ILocWay
         }
     }
 
-    private IEdgeHandle<Intersection> _graphHandle = null!;
+    private IEdgeHandle<Intersection>? _graphHandle = null;
 
     private IReadOnlyList<Coordinates> _path = [];
     float ILocWay.PathLength => PathLength;
@@ -55,8 +56,8 @@ internal class Way : TaggableMapElement<IWayTag>, ILocWay
             SourceMap = SourceMap,
             RawTags = RawTags
         };
-        SourceMap.Graph.Connect(EConnectionDirection.From, To, reverseWay);
-        SourceMap.Graph.Connect(EConnectionDirection.To, From, reverseWay);
+        SourceMap.GraphManager.Connect(EConnectionDirection.From, To, reverseWay);
+        SourceMap.GraphManager.Connect(EConnectionDirection.To, From, reverseWay);
         if (AdjacentReverse is { } existingReverse)
             existingReverse.AdjacentReverse = null;
         AdjacentReverse = reverseWay;
@@ -64,14 +65,16 @@ internal class Way : TaggableMapElement<IWayTag>, ILocWay
         return reverseWay;
     }
 
+    protected override IElementHandle<Region> GetRegionElementHandle(RegionManager<Region, Way, IPointElement> manager) => manager.GetLine(this);
+
     protected override IWayTag? SerializeTag(string key, string value)
     {
         throw new NotImplementedException();
     }
 
-    private IEdgeHandle<Intersection> GetHandle()
+    private IEdgeHandle<Intersection> AccessGraphHandle()
     {
-        _graphHandle ??= SourceMap.Graph.GetEdge(this);
+        _graphHandle ??= SourceMap.GraphManager.GetEdge(this);
         return _graphHandle;
     }
 
