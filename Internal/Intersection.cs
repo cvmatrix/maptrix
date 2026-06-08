@@ -8,7 +8,7 @@ using Util.RegionManagement;
 
 internal class Intersection : TaggableMapElement<IIntersectionTag>, ILocIntersection, IPointElement
 {
-    private INodeHandle<Way> _graphHandle = null!;
+    private INodeHandle<Way>? _graphHandle = null;
     protected override IElementHandle<Region> GetRegionElementHandle(RegionManager<Region, Way, IPointElement> manager) => manager.GetPoint(this);
 
     protected override IIntersectionTag? SerializeTag(string key, string value)
@@ -17,18 +17,18 @@ internal class Intersection : TaggableMapElement<IIntersectionTag>, ILocIntersec
     }
 
     public required Coordinates Position { get; set; }
-    public IReadOnlySet<Way> Incoming => GetHandle().Incoming;
-    public IReadOnlySet<Way> Outgoing => GetHandle().Outgoing;
+    public IReadOnlySet<Way> Incoming => AccessGraphHandle().Incoming;
+    public IReadOnlySet<Way> Outgoing => AccessGraphHandle().Outgoing;
     ILocCoordinates ILocIntersection.Position => Position;
 
     // DEV: mapped view works because uhhhh it's garunteed that the only objects present are exactly the internal type probably uhh.
 
-    IReadOnlySet<ILocWay> ILocIntersection.Incoming => Incoming.MappedView(ILocWay (x) => x, x => (Way)x);
-    IReadOnlySet<ILocWay> ILocIntersection.Outgoing => Outgoing.MappedView(ILocWay (x) => x, x => (Way)x);
+    IReadOnlySet<ILocWay> ILocIntersection.Incoming => Incoming.CastingView<Way, ILocWay>();
+    IReadOnlySet<ILocWay> ILocIntersection.Outgoing => Outgoing.CastingView<Way, ILocWay>();
 
-    private INodeHandle<Way> GetHandle()
+    private INodeHandle<Way> AccessGraphHandle()
     {
-        _graphHandle ??= SourceMap.GraphManager.GetNode(this);
+        _graphHandle ??= SourceMap.Data.GraphManager.GetNode(this);
         return _graphHandle;
     }
 }

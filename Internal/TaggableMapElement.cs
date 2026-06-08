@@ -32,7 +32,7 @@ internal abstract class TaggableMapElement<TTagType> : ILocMapElement, ILocTagga
     private Dictionary<string, string> _rawTags = [];
     private Dictionary<Type, TTagType> _serialTagMap = [];
 
-    IReadOnlySet<ILocRegion> ILocMapElement.InRegions => AccessRegionElementHandle().EncompassedBy.MappedView(ILocRegion (x) => x, x => (Region)x);
+    IReadOnlySet<ILocRegion> ILocMapElement.InRegions => AccessRegionElementHandle().EncompassedBy.CastingView<Region, ILocRegion>();
 
     public TTag? GetTag<TTag>() where TTag : class, TTagType
     {

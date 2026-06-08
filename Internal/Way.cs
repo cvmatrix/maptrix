@@ -8,6 +8,7 @@ using Util.RegionManagement;
 
 internal class Way : TaggableMapElement<IWayTag>, ILocWay
 {
+    
     public float PathLength { get; private set; }
     public required int WayConnectionId { get; set; }
     public Way? AdjacentReverse { get; private set; }
@@ -56,8 +57,8 @@ internal class Way : TaggableMapElement<IWayTag>, ILocWay
             SourceMap = SourceMap,
             RawTags = RawTags
         };
-        SourceMap.GraphManager.Connect(EConnectionDirection.From, To, reverseWay);
-        SourceMap.GraphManager.Connect(EConnectionDirection.To, From, reverseWay);
+        SourceMap.Data.GraphManager.Connect(EConnectionDirection.From, To, reverseWay);
+        SourceMap.Data.GraphManager.Connect(EConnectionDirection.To, From, reverseWay);
         if (AdjacentReverse is { } existingReverse)
             existingReverse.AdjacentReverse = null;
         AdjacentReverse = reverseWay;
@@ -74,7 +75,7 @@ internal class Way : TaggableMapElement<IWayTag>, ILocWay
 
     private IEdgeHandle<Intersection> AccessGraphHandle()
     {
-        _graphHandle ??= SourceMap.GraphManager.GetEdge(this);
+        _graphHandle ??= SourceMap.Data.GraphManager.GetEdge(this);
         return _graphHandle;
     }
 
