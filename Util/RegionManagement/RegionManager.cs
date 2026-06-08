@@ -3,42 +3,135 @@ namespace CVMatrix.DropOffDefense.SLib.Util.RegionManagement;
 using System.Collections;
 using System.Numerics;
 using ErgoLock;
+
 internal class RegionManager<T> where T : class
 {
+    private readonly Dictionary<T, LineInfo> _lines = [];
+    private readonly Dictionary<T, PointInfo> _points = [];
+    private readonly Dictionary<T, RegionInfo> _regions = [];
     private readonly ErgoLock _lock = new();
-    public void SetRegion(T key, IEnumerable<Vector2> boundary, IEnumerable<IEnumerable<Vector2>>? subtractiveBoundaries = null)
+
+    public ILineHandle<T> GetLine(T key)
+    {
+        return new LineHandle(key, this);
+    }
+
+    public IPointHandle<T> GetPoint(T key)
+    {
+        return new PointHandle(key, this);
+    }
+
+    public IRegionHandle<T> GetRegion(T key)
+    {
+        return new RegionHandle(key, this);
+    }
+
+    public void RemoveLine(T key)
     {
         using var _ = _lock.WriteScope;
     }
 
-    public void SetRegion(T key, IEnumerable<IEnumerable<Vector2>> convexBoundaries)
+    public void RemovePoint(T key)
     {
-
+        using var _ = _lock.WriteScope;
     }
+
     public void RemoveRegion(T key)
     {
         using var _ = _lock.WriteScope;
     }
 
-    public IRegionHandle<T> GetRegion(T key)
+    public void SetLine(T key, IEnumerable<Vector2> path)
     {
-
+        using var _ = _lock.WriteScope;
     }
 
-
-    private class Boundary
+    public void SetPoint(T key, Vector2 position)
     {
-        public required List<Vector2> Bounds { get; set; }
-        public required List<List<Vector2>> SubtractiveBounds { get; set; }
+        using var _ = _lock.WriteScope;
     }
 
-    private static bool CheckPointInsideBoundary(Vector2 point, Boundary boundary)
+    public void SetRegion(T key, IEnumerable<Vector2> boundary, IEnumerable<IEnumerable<Vector2>>? subtractiveBoundaries = null)
     {
-        if (!CheckPointInsideBounds(point, boundary.Bounds)) return false;
-        if (boundary.SubtractiveBounds.Any(bounds => CheckPointInsideBounds(point, bounds))) return false;
+        using var _ = _lock.WriteScope;
+        RemoveRegion(key);
+        var newRegion = new RegionInfo(key)
+        {
+            BoundaryShape = new()
+            {
+                Bounds = [..boundary],
+                SubtractiveBounds = subtractiveBoundaries?.Select(x => x.ToList()).ToList() ?? [],
+            },
+        };
+        foreach (var existingRegion in _regions.Values)
+        {
+            if (CheckBoundaryAInsideB(newRegion.BoundaryShape, existingRegion.BoundaryShape))
+            {
+                newRegion.EncompassedBy.Add(existingRegion.KeyObject);
+                existingRegion.Encompasses.Add(newRegion.KeyObject);
+            }
+            if (CheckBoundaryAInsideB(existingRegion.BoundaryShape, newRegion.BoundaryShape))
+            {
+                existingRegion.EncompassedBy.Add(newRegion.KeyObject);
+                newRegion.Encompasses.Add(existingRegion.KeyObject);
+            }
+        }
+
+        foreach (var existingLine in _lines.Values)
+        {
+            if (CheckPathInsideBoundary(existingLine.Path, newRegion.BoundaryShape))
+            {
+                newRegion.Encompasses
+            }
+        }
+    }
+
+    private LineInfo? GetLineInfo(T key)
+    {
+        using var _ = _lock.ReadScope;
+        return _lines.GetValueOrDefault(key);
+    }
+
+    private PointInfo? GetPointInfo(T key)
+    {
+        using var _ = _lock.ReadScope;
+        return _points.GetValueOrDefault(key);
+    }
+
+    private RegionInfo? GetRegionInfo(T key)
+    {
+        using var _ = _lock.ReadScope;
+        return _regions.GetValueOrDefault(key);
+    }
+
+    // BUG: in the edgecase that B has a subtractive boundaries that overlap area-wise with A but have no verticies within A, this method may incorrectly return true.
+    // Can be fixed by doing proper edge-to-edge checking for bound-inside-bound checking, but that would be overkill i think for our use case.
+    private static bool CheckBoundaryAInsideB(BoundaryShape a, BoundaryShape b)
+    {
+        if (!a.Bounds.All(aPoint => CheckPointInsideBoundary(aPoint, b))) return false;
+        foreach (var bsSubtractive in b.SubtractiveBounds)
+        foreach (var bsPoint in bsSubtractive)
+        {
+            if (!CheckPointInsideBounds(bsPoint, a.Bounds)) continue;
+            if (a.SubtractiveBounds.Any(asBound => CheckPointInsideBounds(bsPoint, asBound))) continue;
+            return false;
+        }
+
         return true;
     }
 
+    private static bool CheckPointInsideBoundary(Vector2 point, BoundaryShape boundaryShape)
+    {
+        if (!CheckPointInsideBounds(point, boundaryShape.Bounds)) return false;
+        if (boundaryShape.SubtractiveBounds.Any(bounds => CheckPointInsideBounds(point, bounds))) return false;
+        return true;
+    }
+
+    // BUG: same bug behavior as CheckBoundaryAInsideB()
+    private static bool CheckPathInsideBoundary(IReadOnlyList<Vector2> path, BoundaryShape boundaryShape)
+    {
+        return path.All(x => CheckPointInsideBoundary(x, boundaryShape));
+    }
     private static bool CheckPointInsideBounds(Vector2 point, IReadOnlyList<Vector2> bounds)
     {
         // algo:
@@ -46,7 +139,7 @@ internal class RegionManager<T> where T : class
         // point is inside bounds iff intersection count is odd
 
         if (bounds.Count < 3) return false;
-        int intersections = 0;
+        var intersections = 0;
         // for zero-checking later:
         foreach (var (rawA, rawB) in IterBoundaryBounds(bounds))
         {
@@ -62,35 +155,17 @@ internal class RegionManager<T> where T : class
             var bySign = Math.Sign(b.Y);
 
             ySigns.Add(aySign);
-            if ((aySign == bySign) ||
+            if (aySign == bySign ||
                 (axSign == -1 && bxSign == -1))
                 continue;
             //~ already zero guarded by (aySign == bySign) above
             var inverseSlope = (b.X - a.X) / (b.Y - a.Y);
-            if (a.X + (-a.Y * inverseSlope) < 0) continue;
+            if (a.X + -a.Y * inverseSlope < 0) continue;
 
             intersections++;
         }
 
         return intersections % 2 != 0;
-    }
-
-    // BUG: in the edgecase that B has a subtractive boundaries that overlap area-wise with A but have no verticies within A, this method may incorrectly return true.
-    // Can be fixed by doing proper edge-to-edge checking for bound-inside-bound checking, but that would be overkill i think for our use case.
-    private static bool CheckBoundaryAInsideB(Boundary a, Boundary b)
-    {
-        if (!a.Bounds.All(aPoint => CheckPointInsideBoundary(aPoint, b))) return false;
-        foreach (var bsSubtractive in b.SubtractiveBounds)
-        {
-            foreach (var bsPoint in bsSubtractive)
-            {
-                if (!CheckPointInsideBounds(bsPoint, a.Bounds)) continue;
-                if (a.SubtractiveBounds.Any(asBound => CheckPointInsideBounds(bsPoint, asBound))) continue;
-                return false;
-            }
-        }
-
-        return true;
     }
 
     private static IEnumerable<(Vector2, Vector2)> IterBoundaryBounds(IEnumerable<Vector2> bounds)
@@ -101,7 +176,7 @@ internal class RegionManager<T> where T : class
         var first = point;
         if (!iter.MoveNext()) yield break;
         var next = iter.Current;
-        bool hasThird = false;
+        var hasThird = false;
         while (iter.MoveNext())
         {
             yield return (point, next);
@@ -113,5 +188,61 @@ internal class RegionManager<T> where T : class
         if (!hasThird) yield break;
         // last point to first point:
         yield return (next, first);
+    }
+
+    private abstract class RegionElement(T keyObject)
+    {
+        public readonly T KeyObject = keyObject;
+        public HashSet<T> EncompassedBy { get; set; } = [];
+        public HashSet<T> Encompasses { get; set; } = [];
+    }
+
+    private class BoundaryShape
+    {
+        public List<List<Vector2>> SubtractiveBounds { get; set; } = [];
+        public List<Vector2> Bounds { get; set; } = [];
+    }
+
+    private class LineHandle(T keyObject, RegionManager<T> parent) : ILineHandle<T>
+    {
+        public readonly RegionManager<T> Parent = parent;
+        public readonly T KeyObject = keyObject;
+        public IReadOnlyList<Vector2>? Path => Parent.GetLineInfo(KeyObject)?.Path;
+        public IReadOnlySet<T> EncompassedBy => Parent.GetLineInfo(KeyObject)?.EncompassedBy ?? [];
+        public IReadOnlySet<T> Encompasses => Parent.GetLineInfo(KeyObject)?.Encompasses ?? [];
+    }
+
+    private class LineInfo(T keyObject) : RegionElement(keyObject)
+    {
+        public List<Vector2> Path { get; set; } = [];
+    }
+
+    private class PointHandle(T keyObject, RegionManager<T> parent) : IPointHandle<T>
+    {
+        public readonly RegionManager<T> Parent = parent;
+        public readonly T KeyObject = keyObject;
+        public IReadOnlySet<T> EncompassedBy => Parent.GetPointInfo(KeyObject)?.EncompassedBy ?? [];
+        public IReadOnlySet<T> Encompasses => Parent.GetPointInfo(KeyObject)?.Encompasses ?? [];
+        public Vector2? Position => Parent.GetPointInfo(KeyObject)?.Position;
+    }
+
+    private class PointInfo(T keyObject) : RegionElement(keyObject)
+    {
+        public Vector2 Position { get; set; } = default;
+    }
+
+    private class RegionHandle(T keyObject, RegionManager<T> parent) : IRegionHandle<T>
+    {
+        public readonly RegionManager<T> Parent = parent;
+        public readonly T KeyObject = keyObject;
+        public IReadOnlyList<IReadOnlyList<Vector2>> SubtractiveBoundaries => Parent.GetRegionInfo(KeyObject)?.BoundaryShape.SubtractiveBounds ?? [];
+        public IReadOnlyList<Vector2> Boundary => Parent.GetRegionInfo(KeyObject)?.BoundaryShape.Bounds ?? [];
+        public IReadOnlySet<T> EncompassedBy => Parent.GetRegionInfo(KeyObject)?.EncompassedBy ?? [];
+        public IReadOnlySet<T> Encompasses => Parent.GetRegionInfo(KeyObject)?.Encompasses ?? [];
+    }
+
+    private class RegionInfo(T keyObject) : RegionElement(keyObject)
+    {
+        public BoundaryShape BoundaryShape { get; set; } = new();
     }
 }

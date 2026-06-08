@@ -5,7 +5,7 @@ using Loc.Tags;
 using System.Threading;
 using ErgoLock;
 
-public class GraphManager<TNode, TEdge>
+public sealed class GraphManager<TNode, TEdge>
     where TNode : class
     where TEdge : class
 {
@@ -16,8 +16,8 @@ public class GraphManager<TNode, TEdge>
     public void Connect(EConnectionDirection direction, TNode node, TEdge edge)
     {
         using var _ = _lock.WriteScope;
-        _edges.TryAdd(edge, new(edge, this));
-        _nodes.TryAdd(node, new(node, this));
+        _edges.TryAdd(edge, new(edge));
+        _nodes.TryAdd(node, new(node));
         var edgeInfo = _edges[edge];
         var nodeInfo = _nodes[node];
 
@@ -162,7 +162,7 @@ public class GraphManager<TNode, TEdge>
         _nodes[newNode] = oldInfo;
     }
 
-    protected class EdgeHandle(TEdge node, GraphManager<TNode, TEdge> parent) : IEdgeHandle<TNode>
+    private class EdgeHandle(TEdge node, GraphManager<TNode, TEdge> parent) : IEdgeHandle<TNode>
     {
         public readonly GraphManager<TNode, TEdge> Parent = parent;
         public readonly TEdge KeyObject = node;
@@ -170,16 +170,15 @@ public class GraphManager<TNode, TEdge>
         public TNode? To => Parent.GetEdgeInfo(KeyObject)?.To;
     }
 
-    protected class EdgeInfo(TEdge edge, GraphManager<TNode, TEdge> parent)
+    private class EdgeInfo(TEdge edge)
     {
-        public readonly GraphManager<TNode, TEdge> Parent = parent;
         public TEdge KeyObject = edge;
         public TNode? From { get; set; }
         public TNode? To { get; set; }
         public bool IsInsignificant => To is null && From is null;
     }
 
-    protected class NodeHandle(TNode node, GraphManager<TNode, TEdge> parent) : INodeHandle<TEdge>
+    private class NodeHandle(TNode node, GraphManager<TNode, TEdge> parent) : INodeHandle<TEdge>
     {
         public readonly GraphManager<TNode, TEdge> Parent = parent;
         public readonly TNode KeyObject = node;
@@ -187,22 +186,21 @@ public class GraphManager<TNode, TEdge>
         public IReadOnlySet<TEdge> Outgoing => Parent.GetNodeInfo(KeyObject)?.Outgoing ?? [];
     }
 
-    protected class NodeInfo(TNode node, GraphManager<TNode, TEdge> parent)
+    private class NodeInfo(TNode node)
     {
-        public readonly GraphManager<TNode, TEdge> Parent = parent;
         public TNode KeyObject = node;
         public HashSet<TEdge> Incoming { get; set; } = [];
         public HashSet<TEdge> Outgoing { get; set; } = [];
         public bool IsInsignificant => Incoming.Count == 0 && Outgoing.Count == 0;
     }
 
-    protected EdgeInfo? GetEdgeInfo(TEdge edge)
+    private EdgeInfo? GetEdgeInfo(TEdge edge)
     {
         using var _ = _lock.ReadScope;
         return _edges.GetValueOrDefault(edge);
     }
 
-    protected NodeInfo? GetNodeInfo(TNode node)
+    private NodeInfo? GetNodeInfo(TNode node)
     {
         using var _ = _lock.ReadScope;
         return _nodes.GetValueOrDefault(node);
