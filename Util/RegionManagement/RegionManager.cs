@@ -4,54 +4,104 @@ using System.Collections;
 using System.Numerics;
 using ErgoLock;
 
-internal class RegionManager<T> where T : class
+internal class RegionManager<TRegion, TLine, TPoint> where TRegion : class where TLine : class where TPoint : class
 {
-    private readonly Dictionary<T, LineInfo> _lines = [];
-    private readonly Dictionary<T, PointInfo> _points = [];
-    private readonly Dictionary<T, RegionInfo> _regions = [];
+    private readonly Dictionary<TLine, LineInfo> _lines = [];
+    private readonly Dictionary<TPoint, PointInfo> _points = [];
+    private readonly Dictionary<TRegion, RegionInfo> _regions = [];
     private readonly ErgoLock _lock = new();
 
-    public ILineHandle<T> GetLine(T key)
+    public ILineHandle<TRegion> GetLine(TLine key)
     {
         return new LineHandle(key, this);
     }
 
-    public IPointHandle<T> GetPoint(T key)
+    public IPointHandle<TRegion> GetPoint(TPoint key)
     {
         return new PointHandle(key, this);
     }
 
-    public IRegionHandle<T> GetRegion(T key)
+    public IRegionHandle<TRegion, TLine, TPoint> GetRegion(TRegion key)
     {
         return new RegionHandle(key, this);
     }
 
-    public void RemoveLine(T key)
+    public void RemoveLine(TLine key)
     {
         using var _ = _lock.WriteScope;
+        if (!_lines.Remove(key, out var removing)) return;
+        foreach (var existingRegion in _regions.Values)
+        {
+            existingRegion.EncompassesLines.Remove(removing.KeyObject);
+        }
     }
 
-    public void RemovePoint(T key)
+    public void RemovePoint(TPoint key)
     {
         using var _ = _lock.WriteScope;
+        if (!_points.Remove(key, out var removing)) return;
+        foreach (var existingRegion in _regions.Values)
+        {
+            existingRegion.EncompassesPoints.Remove(removing.KeyObject);
+        }
     }
 
-    public void RemoveRegion(T key)
+    public void RemoveRegion(TRegion key)
     {
         using var _ = _lock.WriteScope;
+        if (!_regions.Remove(key, out var removing)) return;
+        foreach (var existingRegion in _regions.Values)
+        {
+            existingRegion.EncompassesRegions.Remove(removing.KeyObject);
+            existingRegion.EncompassedBy.Remove(removing.KeyObject);
+        }
+        foreach (var existingLine in _lines.Values)
+        {
+            existingLine.EncompassedBy.Remove(removing.KeyObject);
+        }
+        foreach (var existingPoint in _points.Values)
+        {
+            existingPoint.EncompassedBy.Remove(removing.KeyObject);
+        }
     }
 
-    public void SetLine(T key, IEnumerable<Vector2> path)
+    public void SetLine(TLine key, IEnumerable<Vector2> path)
     {
         using var _ = _lock.WriteScope;
+        RemoveLine(key);
+        var newLine = new LineInfo(key)
+        {
+            Path = [..path],
+        };
+        foreach (var existingRegion in _regions.Values)
+        {
+            if (!CheckPathInsideBoundary(newLine.Path, existingRegion.BoundaryShape)) continue;
+            newLine.EncompassedBy.Add(existingRegion.KeyObject);
+            existingRegion.EncompassesLines.Add(newLine.KeyObject);
+        }
+
+        _lines[newLine.KeyObject] = newLine;
     }
 
-    public void SetPoint(T key, Vector2 position)
+    public void SetPoint(TPoint key, Vector2 position)
     {
         using var _ = _lock.WriteScope;
+        RemovePoint(key);
+        var newPoint = new PointInfo(key)
+        {
+            Position = position,
+        };
+        foreach (var existingRegion in _regions.Values)
+        {
+            if (!CheckPointInsideBoundary(newPoint.Position, existingRegion.BoundaryShape)) continue;
+            newPoint.EncompassedBy.Add(existingRegion.KeyObject);
+            existingRegion.EncompassesPoints.Add(newPoint.KeyObject);
+        }
+
+        _points[newPoint.KeyObject] = newPoint;
     }
 
-    public void SetRegion(T key, IEnumerable<Vector2> boundary, IEnumerable<IEnumerable<Vector2>>? subtractiveBoundaries = null)
+    public void SetRegion(TRegion key, IEnumerable<Vector2> boundary, IEnumerable<IEnumerable<Vector2>>? subtractiveBoundaries = null)
     {
         using var _ = _lock.WriteScope;
         RemoveRegion(key);
@@ -68,37 +118,43 @@ internal class RegionManager<T> where T : class
             if (CheckBoundaryAInsideB(newRegion.BoundaryShape, existingRegion.BoundaryShape))
             {
                 newRegion.EncompassedBy.Add(existingRegion.KeyObject);
-                existingRegion.Encompasses.Add(newRegion.KeyObject);
+                existingRegion.EncompassesRegions.Add(newRegion.KeyObject);
             }
             if (CheckBoundaryAInsideB(existingRegion.BoundaryShape, newRegion.BoundaryShape))
             {
                 existingRegion.EncompassedBy.Add(newRegion.KeyObject);
-                newRegion.Encompasses.Add(existingRegion.KeyObject);
+                newRegion.EncompassesRegions.Add(existingRegion.KeyObject);
             }
         }
 
         foreach (var existingLine in _lines.Values)
         {
-            if (CheckPathInsideBoundary(existingLine.Path, newRegion.BoundaryShape))
-            {
-                newRegion.Encompasses
-            }
+            if (!CheckPathInsideBoundary(existingLine.Path, newRegion.BoundaryShape)) continue;
+            existingLine.EncompassedBy.Add(newRegion.KeyObject);
+            newRegion.EncompassesLines.Add(existingLine.KeyObject);
         }
+        foreach (var existingPoint in _points.Values)
+        {
+            if (!CheckPointInsideBoundary(existingPoint.Position, newRegion.BoundaryShape)) continue;
+            existingPoint.EncompassedBy.Add(newRegion.KeyObject);
+            newRegion.EncompassesPoints.Add(existingPoint.KeyObject);
+        }
+        _regions[newRegion.KeyObject] = newRegion;
     }
 
-    private LineInfo? GetLineInfo(T key)
+    private LineInfo? GetLineInfo(TLine key)
     {
         using var _ = _lock.ReadScope;
         return _lines.GetValueOrDefault(key);
     }
 
-    private PointInfo? GetPointInfo(T key)
+    private PointInfo? GetPointInfo(TPoint key)
     {
         using var _ = _lock.ReadScope;
         return _points.GetValueOrDefault(key);
     }
 
-    private RegionInfo? GetRegionInfo(T key)
+    private RegionInfo? GetRegionInfo(TRegion key)
     {
         using var _ = _lock.ReadScope;
         return _regions.GetValueOrDefault(key);
@@ -190,11 +246,10 @@ internal class RegionManager<T> where T : class
         yield return (next, first);
     }
 
-    private abstract class RegionElement(T keyObject)
+    private abstract class RegionElement<TKey>(TKey keyObject) where TKey : class
     {
-        public readonly T KeyObject = keyObject;
-        public HashSet<T> EncompassedBy { get; set; } = [];
-        public HashSet<T> Encompasses { get; set; } = [];
+        public readonly TKey KeyObject = keyObject;
+        public HashSet<TRegion> EncompassedBy { get; set; } = [];
     }
 
     private class BoundaryShape
@@ -203,46 +258,49 @@ internal class RegionManager<T> where T : class
         public List<Vector2> Bounds { get; set; } = [];
     }
 
-    private class LineHandle(T keyObject, RegionManager<T> parent) : ILineHandle<T>
+    private class LineHandle(TLine keyObject, RegionManager<TRegion, TLine, TPoint> parent) : ILineHandle<TRegion>
     {
-        public readonly RegionManager<T> Parent = parent;
-        public readonly T KeyObject = keyObject;
+        public readonly RegionManager<TRegion, TLine, TPoint> Parent = parent;
+        public readonly TLine KeyObject = keyObject;
         public IReadOnlyList<Vector2>? Path => Parent.GetLineInfo(KeyObject)?.Path;
-        public IReadOnlySet<T> EncompassedBy => Parent.GetLineInfo(KeyObject)?.EncompassedBy ?? [];
-        public IReadOnlySet<T> Encompasses => Parent.GetLineInfo(KeyObject)?.Encompasses ?? [];
+        public IReadOnlySet<TRegion> EncompassedBy => Parent.GetLineInfo(KeyObject)?.EncompassedBy ?? [];
     }
 
-    private class LineInfo(T keyObject) : RegionElement(keyObject)
+    private class LineInfo(TLine keyObject) : RegionElement<TLine>(keyObject)
     {
         public List<Vector2> Path { get; set; } = [];
     }
 
-    private class PointHandle(T keyObject, RegionManager<T> parent) : IPointHandle<T>
+    private class PointHandle(TPoint keyObject, RegionManager<TRegion, TLine, TPoint> parent) : IPointHandle<TRegion>
     {
-        public readonly RegionManager<T> Parent = parent;
-        public readonly T KeyObject = keyObject;
-        public IReadOnlySet<T> EncompassedBy => Parent.GetPointInfo(KeyObject)?.EncompassedBy ?? [];
-        public IReadOnlySet<T> Encompasses => Parent.GetPointInfo(KeyObject)?.Encompasses ?? [];
+        public readonly RegionManager<TRegion, TLine, TPoint> Parent = parent;
+        public readonly TPoint KeyObject = keyObject;
+        public IReadOnlySet<TRegion> EncompassedBy => Parent.GetPointInfo(KeyObject)?.EncompassedBy ?? [];
         public Vector2? Position => Parent.GetPointInfo(KeyObject)?.Position;
     }
 
-    private class PointInfo(T keyObject) : RegionElement(keyObject)
+    private class PointInfo(TPoint keyObject) : RegionElement<TPoint>(keyObject)
     {
         public Vector2 Position { get; set; } = default;
     }
 
-    private class RegionHandle(T keyObject, RegionManager<T> parent) : IRegionHandle<T>
+    private class RegionHandle(TRegion keyObject, RegionManager<TRegion, TLine, TPoint> parent) : IRegionHandle<TRegion, TLine, TPoint>
     {
-        public readonly RegionManager<T> Parent = parent;
-        public readonly T KeyObject = keyObject;
+        public readonly RegionManager<TRegion, TLine, TPoint> Parent = parent;
+        public readonly TRegion KeyObject = keyObject;
         public IReadOnlyList<IReadOnlyList<Vector2>> SubtractiveBoundaries => Parent.GetRegionInfo(KeyObject)?.BoundaryShape.SubtractiveBounds ?? [];
         public IReadOnlyList<Vector2> Boundary => Parent.GetRegionInfo(KeyObject)?.BoundaryShape.Bounds ?? [];
-        public IReadOnlySet<T> EncompassedBy => Parent.GetRegionInfo(KeyObject)?.EncompassedBy ?? [];
-        public IReadOnlySet<T> Encompasses => Parent.GetRegionInfo(KeyObject)?.Encompasses ?? [];
+        public IReadOnlySet<TRegion> EncompassedBy => Parent.GetRegionInfo(KeyObject)?.EncompassedBy ?? [];
+        public IReadOnlySet<TRegion> EncompassesRegions => Parent.GetRegionInfo(KeyObject)?.EncompassesRegions ?? [];
+        public IReadOnlySet<TLine> EncompassesLines => Parent.GetRegionInfo(KeyObject)?.EncompassesLines ?? [];
+        public IReadOnlySet<TPoint> EncompassesPoints => Parent.GetRegionInfo(KeyObject)?.EncompassesPoints ?? [];
     }
 
-    private class RegionInfo(T keyObject) : RegionElement(keyObject)
+    private class RegionInfo(TRegion keyObject) : RegionElement<TRegion>(keyObject)
     {
         public BoundaryShape BoundaryShape { get; set; } = new();
+        public HashSet<TRegion> EncompassesRegions { get; set; } = [];
+        public HashSet<TLine> EncompassesLines { get; set; } = [];
+        public HashSet<TPoint> EncompassesPoints { get; set; } = [];
     }
 }
