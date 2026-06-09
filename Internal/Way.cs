@@ -8,7 +8,6 @@ using Util.RegionManagement;
 
 internal class Way : TaggableMapElement<IWayTag>, ILocWay
 {
-    
     public float PathLength { get; private set; }
     public required int WayConnectionId { get; set; }
     public Way? AdjacentReverse { get; private set; }
@@ -27,7 +26,7 @@ internal class Way : TaggableMapElement<IWayTag>, ILocWay
         }
     }
 
-    private IEdgeHandle<Intersection>? _graphHandle = null;
+    private IEdgeHandle<Intersection>? _graphHandle;
 
     private IReadOnlyList<Coordinates> _path = [];
     float ILocWay.PathLength => PathLength;
@@ -66,7 +65,10 @@ internal class Way : TaggableMapElement<IWayTag>, ILocWay
         return reverseWay;
     }
 
-    protected override IElementHandle<Region> GetRegionElementHandle(RegionManager<Region, Way, IPointElement> manager) => manager.GetLine(this);
+    protected override IElementHandle<Region> GetRegionElementHandle(RegionManager<Region, Way, IPointElement> manager)
+    {
+        return manager.GetLine(this);
+    }
 
     protected override IWayTag? SerializeTag(string key, string value)
     {

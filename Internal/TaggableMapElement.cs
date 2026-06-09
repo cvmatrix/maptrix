@@ -7,15 +7,8 @@ using Util.RegionManagement;
 
 internal abstract class TaggableMapElement<TTagType> : ILocMapElement, ILocTaggable<TTagType> where TTagType : class, ITag
 {
-    private IElementHandle<Region>? _elementHandle = null;
-
-    private IElementHandle<Region> AccessRegionElementHandle()
-    {
-        _elementHandle ??= GetRegionElementHandle(SourceMap.RegionManager);
-        return _elementHandle;
-    }
-    protected abstract IElementHandle<Region> GetRegionElementHandle(RegionManager<Region, Way, IPointElement> manager);
     public required LocMap SourceMap { get; init; }
+
     public required IReadOnlyDictionary<string, string> RawTags
     {
         set
@@ -31,6 +24,7 @@ internal abstract class TaggableMapElement<TTagType> : ILocMapElement, ILocTagga
 
     private Dictionary<string, string> _rawTags = [];
     private Dictionary<Type, TTagType> _serialTagMap = [];
+    private IElementHandle<Region>? _elementHandle;
 
     IReadOnlySet<ILocRegion> ILocMapElement.InRegions => AccessRegionElementHandle().EncompassedBy.CastingView<Region, ILocRegion>();
 
@@ -40,5 +34,13 @@ internal abstract class TaggableMapElement<TTagType> : ILocMapElement, ILocTagga
         return (TTag)serialTag;
     }
 
+    protected abstract IElementHandle<Region> GetRegionElementHandle(RegionManager<Region, Way, IPointElement> manager);
+
     protected abstract TTagType? SerializeTag(string key, string value);
+
+    private IElementHandle<Region> AccessRegionElementHandle()
+    {
+        _elementHandle ??= GetRegionElementHandle(SourceMap.RegionManager);
+        return _elementHandle;
+    }
 }

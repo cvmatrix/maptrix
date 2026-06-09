@@ -1,9 +1,11 @@
 namespace CVMatrix.DropOffDefense.SLib.Internal;
+
 using Loc;
+
 internal class Coordinates : ILocCoordinates
 {
-    public ProjectionSource Source { get; }
     public PlanarCoordinates Local { get; }
+    public ProjectionSource Source { get; }
     public RawEarthCoordinates Raw { get; }
 
     public Coordinates(ProjectionSource projection, RawEarthCoordinates rawCoordinates)
