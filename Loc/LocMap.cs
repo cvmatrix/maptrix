@@ -27,6 +27,17 @@ public class LocMap
 
     public static LocMap FromOverpassData(CleanData data, ProjectionSource projection)
     {
+        var locData = new Resources()
+        {
+            Projection = projection,
+            GraphManager = new(),
+            RegionManager = new(),
+            Regions = [],
+            Intersections = [],
+            Ways = [],
+            Pois = [],
+        };
+
         throw new NotImplementedException();
     }
 

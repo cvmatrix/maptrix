@@ -29,6 +29,7 @@ internal class Way : TaggableMapElement<IWayTag>, ILocWay
     private IEdgeHandle<Intersection>? _graphHandle;
 
     private IReadOnlyList<Coordinates> _path = [];
+
     float ILocWay.PathLength => PathLength;
     ILocIntersection ILocWay.From => From;
     ILocIntersection ILocWay.To => To;
