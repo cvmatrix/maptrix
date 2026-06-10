@@ -9,7 +9,6 @@ using Util.RegionManagement;
 internal class Way : TaggableMapElement<IWayTag>, ILocWay
 {
     public float PathLength { get; private set; }
-    public required int WayConnectionId { get; set; }
     public Way? AdjacentReverse { get; private set; }
 
     // DEV: it should be enforced that this edge always has From and To nodes before public exposure.
@@ -35,7 +34,6 @@ internal class Way : TaggableMapElement<IWayTag>, ILocWay
     ILocIntersection ILocWay.To => To;
 
     ILocWay? ILocWay.AdjacentReverse => AdjacentReverse;
-    int ILocWay.WayConnectionId => WayConnectionId;
 
     IReadOnlyList<ILocCoordinates> ILocWay.Path => Path;
 
@@ -52,7 +50,6 @@ internal class Way : TaggableMapElement<IWayTag>, ILocWay
     {
         Way reverseWay = new()
         {
-            WayConnectionId = connectionId ?? WayConnectionId,
             Path = Path.Reverse().ToList(),
             SourceMap = SourceMap,
             RawTags = RawTags

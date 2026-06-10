@@ -21,7 +21,7 @@ public record CleanNode : ICleanElement
     public required double Latitude { get; init; }
     public required double Longitude { get; init; }
     public required IReadOnlyDictionary<string, string> Tags { get; init; }
-    public required ulong Id { get; init; }
+    public required CleanNodeId Id { get; init; }
 
     public virtual bool Equals(CleanNode? other)
     {

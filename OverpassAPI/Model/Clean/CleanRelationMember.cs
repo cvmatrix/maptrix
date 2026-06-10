@@ -19,6 +19,10 @@ public record CleanRelationMember
     }
 
     public required ERelationType Type { get; init; }
+    /// <summary>
+    /// "outer" for outer bounds, "inner" for inner subtractive bounds.<br></br>
+    /// (idk about others)
+    /// </summary>
     public required string Role { get; init; }
     public required ulong Ref { get; init; }
 

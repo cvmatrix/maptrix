@@ -12,14 +12,14 @@ public record CleanWay : ICleanElement
         return new()
         {
             Id = element.Id,
-            Nodes = element.Nodes!,
+            Nodes = [..element.Nodes!],
             Tags = element.Tags
         };
     }
 
     public required IReadOnlyDictionary<string, string> Tags { get; init; }
-    public required IReadOnlyList<ulong> Nodes { get; init; }
-    public required ulong Id { get; init; }
+    public required IReadOnlyList<CleanNodeId> Nodes { get; init; }
+    public required CleanWayId Id { get; init; }
 
     public virtual bool Equals(CleanWay? other)
     {

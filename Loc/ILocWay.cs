@@ -3,7 +3,6 @@
 public interface ILocWay : ILocMapElement, ILocTaggable<Tags.IWayTag>
 {
     public float PathLength { get; }
-    public int WayConnectionId { get; }
     public IReadOnlyList<ILocCoordinates> Path { get; }
     public ILocIntersection From { get; }
     public ILocIntersection To { get; }

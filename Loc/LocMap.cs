@@ -9,7 +9,9 @@ using Util.RegionManagement;
 using Internal;
 using GraphManager = Util.GraphManagement.GraphManager<Internal.Intersection, Internal.Way>;
 using RegionManager = Util.RegionManagement.RegionManager<Internal.Region, Internal.Way, Internal.IPointElement>;
-
+using WayId = ulong;
+using NodeId = ulong;
+using RelationId = ulong;
 public class LocMap
 {
 
@@ -38,9 +40,38 @@ public class LocMap
             Pois = [],
         };
 
+        HashSet<WayId> interpretRegions = [];
+        HashSet<WayId> interpretWays = [];
+        HashSet<NodeId> interpretPois = [..data.Nodes.Values];
+        Dictionary<CleanNode, HashSet<CleanWay>> intersectionMap = [];
+        HashSet<CleanRelation> relations = [..data.Relations.Values];
+
+        foreach (var wayData in data.Ways.Values)
+        {
+            // remove way nodes from pois:
+            interpretPois.ExceptWith(wayData.Nodes.Select(x => data.Nodes[x]));
+
+            // region check:
+            if (wayData.Nodes[0] == wayData.Nodes[^1])
+            {
+                interpretRegions.Add(wayData);
+                continue;
+            }
+
+            // add ends to intersections:
+            interpretWays.Add(wayData);
+            foreach (var wayEnd in new[] {wayData.Nodes[0], wayData.Nodes[^1]}.Select(x => data.Nodes[x]))
+            {
+                if (intersectionMap.TryGetValue(wayEnd, out var connections))
+                    connections.Add(wayData);
+                else
+                    intersectionMap[wayEnd] = [wayData];
+            }
+        }
+
+
         throw new NotImplementedException();
     }
-
     internal class Resources
     {
         internal required ProjectionSource Projection { get; set; }

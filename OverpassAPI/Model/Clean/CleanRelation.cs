@@ -19,7 +19,7 @@ public record CleanRelation : ICleanElement
 
     public required IReadOnlyDictionary<string, string> Tags { get; init; }
     public required IReadOnlyList<CleanRelationMember> Members { get; init; }
-    public required ulong Id { get; init; }
+    public required CleanRelationId Id { get; init; }
 
     public virtual bool Equals(CleanRelation? other)
     {
