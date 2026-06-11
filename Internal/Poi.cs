@@ -17,6 +17,6 @@ internal class Poi : TaggableMapElement<IPoiTag>, ILocPoi, IPointElement
 
     protected override IPoiTag? SerializeTag(string key, string value)
     {
-        throw new NotImplementedException();
+        return null;
     }
 }

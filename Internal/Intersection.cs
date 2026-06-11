@@ -26,7 +26,7 @@ internal class Intersection : TaggableMapElement<IIntersectionTag>, ILocIntersec
 
     protected override IIntersectionTag? SerializeTag(string key, string value)
     {
-        throw new NotImplementedException();
+        return null;
     }
 
     private INodeHandle<Way> AccessGraphHandle()

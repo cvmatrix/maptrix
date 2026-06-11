@@ -72,7 +72,7 @@ internal class Way : TaggableMapElement<IWayTag>, ILocWay
 
     protected override IWayTag? SerializeTag(string key, string value)
     {
-        throw new NotImplementedException();
+        return null;
     }
 
     private IEdgeHandle<Intersection> AccessGraphHandle()
