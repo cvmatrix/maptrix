@@ -9,7 +9,7 @@ internal class RegionManager<TRegion, TLine, TPoint> where TRegion : class where
     private readonly Dictionary<TLine, LineInfo> _lines = [];
     private readonly Dictionary<TPoint, PointInfo> _points = [];
     private readonly Dictionary<TRegion, RegionInfo> _regions = [];
-    private readonly ErgoLock _lock = new();
+    private readonly IErgoLock _lock = new();
 
     public ILineHandle<TRegion> GetLine(TLine key)
     {

@@ -2,52 +2,77 @@ namespace CVMatrix.DropOffDefense.SLib.Util.ErgoLock;
 
 using System.Threading;
 
-public class ErgoLock(LockRecursionPolicy? lockRecursionPolicy = null) : IDisposable
+public class ErgoLock : IErgoLock
 {
+    public ReaderWriterLockSlim InternalLock { get; }
 
-    public ReaderWriterLockSlim InternalLock { get; } = new(lockRecursionPolicy ?? LockRecursionPolicy.NoRecursion);
-    public ReadErgoLockScope ReadScope => new(InternalLock);
-    public UpgradeableErgoLockScope UpgradeableScope => new(InternalLock);
-    public WriteErgoLockScope WriteScope => new(InternalLock);
+    public IReadScope ReadScope => new ReadScopeHolder(this);
+    public IUpgradeableScope UpgradeableScope => new UpgradeableScopeHolder(this);
+    public IWriteScope WriteScope => new WriteScopeHolder(this);
+
+    public ErgoLock()
+    {
+        InternalLock = new();
+    }
+
+    public ErgoLock(ReaderWriterLockSlim internalLock)
+    {
+        InternalLock = internalLock;
+    }
 
     public void Dispose()
     {
         InternalLock.Dispose();
     }
 
-    public T InlineReadScope<T>(Func<T> func)
+    private class ReadScopeHolder : IReadScope
     {
-        using var _ = ReadScope;
-        return func();
+        private readonly ErgoLock _parent;
+
+        public ReadScopeHolder(ErgoLock parent)
+        {
+            _parent = parent;
+            _parent.InternalLock.EnterReadLock();
+        }
+
+        public void Dispose()
+        {
+            _parent.InternalLock.ExitReadLock();
+        }
     }
 
-    public void InlineReadScope(Action action)
+    private class UpgradeableScopeHolder : IUpgradeableScope
     {
-        using var _ = ReadScope;
-        action();
+        public IWriteScope UpgradedScope => !_disposed ? new WriteScopeHolder(_parent) : throw new ObjectDisposedException("IUpgradeableScope");
+        private readonly ErgoLock _parent;
+        private bool _disposed;
+
+        public UpgradeableScopeHolder(ErgoLock parent)
+        {
+            _parent = parent;
+            _parent.InternalLock.EnterUpgradeableReadLock();
+        }
+
+        public void Dispose()
+        {
+            _disposed = true;
+            _parent.InternalLock.ExitUpgradeableReadLock();
+        }
     }
 
-    public T InlineUpgradeableScope<T>(Func<UpgradeableErgoLockScope, T> func)
+    private class WriteScopeHolder : IWriteScope
     {
-        using var scope = UpgradeableScope;
-        return func(scope);
-    }
+        private readonly ErgoLock _parent;
 
-    public void InlineUpgradeableScope(Action<UpgradeableErgoLockScope> action)
-    {
-        using var scope = UpgradeableScope;
-        action(scope);
-    }
+        public WriteScopeHolder(ErgoLock parent)
+        {
+            _parent = parent;
+            _parent.InternalLock.EnterWriteLock();
+        }
 
-    public T InlineWriteScope<T>(Func<T> func)
-    {
-        using var _ = WriteScope;
-        return func();
-    }
-
-    public void InlineWriteScope(Action action)
-    {
-        using var _ = WriteScope;
-        action();
+        public void Dispose()
+        {
+            _parent.InternalLock.ExitWriteLock();
+        }
     }
 }
