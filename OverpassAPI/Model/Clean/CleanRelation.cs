@@ -1,6 +1,6 @@
 namespace CVMatrix.DropOffDefense.SLib.OverpassAPI.Model.Clean;
 
-public record CleanRelation : ICleanElement
+public record CleanRelation
 {
     /// <summary>
     ///     Assumes <paramref name="element" /> is a relation.

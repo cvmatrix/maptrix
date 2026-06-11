@@ -1,6 +1,6 @@
 namespace CVMatrix.DropOffDefense.SLib.OverpassAPI.Model.Clean;
 
-public record CleanWay : ICleanElement
+public record CleanWay
 {
     /// <summary>
     ///     Assumes <paramref name="element" /> is a way.

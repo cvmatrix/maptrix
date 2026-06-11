@@ -210,7 +210,6 @@ internal class RegionManager<TRegion, TLine, TPoint> where TRegion : class where
             var bxSign = Math.Sign(b.X);
             var bySign = Math.Sign(b.Y);
 
-            ySigns.Add(aySign);
             if (aySign == bySign ||
                 (axSign == -1 && bxSign == -1))
                 continue;

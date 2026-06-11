@@ -1,6 +1,6 @@
 namespace CVMatrix.DropOffDefense.SLib.OverpassAPI.Model.Clean;
 
-public record CleanNode : ICleanElement
+public record CleanNode
 {
     /// <summary>
     ///     Assumes <paramref name="element" /> is a node.

@@ -186,11 +186,12 @@ public class LocMap
             var intersectionObj = new Intersection()
             {
                 SourceMap = locMap,
-                Position = __NodeCoordinates(nodeD),
+                Position = __NodeCoordinates(nodeData),
                 RawTags = nodeData.Tags,
             };
             loc.Intersections.Add(intersectionObj);
             loc.RegionManager.SetPoint(intersectionObj, intersectionObj.Position.Local);
+            return intersectionObj;
         }
         Region __AddRegion(CleanWay outerRegionData, IEnumerable<CleanWay>? innerRegionDatas = null)
         {

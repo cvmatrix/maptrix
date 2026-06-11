@@ -13,12 +13,12 @@ public record ProjectionSource
         EarthRadius = earthRadius;
         var offset0 = ToEcef(origin.Latitude, origin.Latitude);
         var north0 = new Vec3(
-            -Math.Sin(latRad0) * Math.Cos(lonRad0),
-            -Math.Sin(latRad0) * Math.Sin(lonRad0),
-            Math.Cos(latRad0));
+            -Math.Sin(origin.Latitude) * Math.Cos(origin.Latitude),
+            -Math.Sin(origin.Latitude) * Math.Sin(origin.Latitude),
+            Math.Cos(origin.Latitude));
         var east0 = new Vec3(
-            -Math.Sin(lonRad0),
-            Math.Cos(lonRad0),
+            -Math.Sin(origin.Latitude),
+            Math.Cos(origin.Latitude),
             0);
         _originData = new()
         {
@@ -49,7 +49,7 @@ public record ProjectionSource
     public PlanarCoordinates ProjectPoint(RawEarthCoordinates rawPoint)
     {
         var offsetDiff = ToEcef(rawPoint.Latitude, rawPoint.Longitude) - _originData.Offset;
-        return new(_originData.East * offsetDiff, _originData.North * offsetDiff);
+        return new((float)(_originData.East * offsetDiff), (float)(_originData.North * offsetDiff));
     }
 
     public RawEarthCoordinates UnprojectPoint(PlanarCoordinates point)

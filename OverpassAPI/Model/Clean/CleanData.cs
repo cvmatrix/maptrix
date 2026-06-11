@@ -5,9 +5,9 @@ public record CleanData
     public static CleanData FromRawResponse(Raw.RawResponse response)
     {
         var initSize = response.Elements.Count / 2;
-        Dictionary<ulong, CleanNode> nodes = new(initSize);
-        Dictionary<ulong, CleanWay> ways = new(initSize);
-        Dictionary<ulong, CleanRelation> relations = new(initSize);
+        Dictionary<CleanNodeId, CleanNode> nodes = new(initSize);
+        Dictionary<CleanWayId, CleanWay> ways = new(initSize);
+        Dictionary<CleanRelationId, CleanRelation> relations = new(initSize);
         foreach (var element in response.Elements)
             switch (element.Type)
             {
@@ -30,7 +30,7 @@ public record CleanData
         };
     }
 
-    public required IReadOnlyDictionary<ulong, CleanNode> Nodes { get; init; }
-    public required IReadOnlyDictionary<ulong, CleanRelation> Relations { get; init; }
-    public required IReadOnlyDictionary<ulong, CleanWay> Ways { get; init; }
+    public required IReadOnlyDictionary<CleanNodeId, CleanNode> Nodes { get; init; }
+    public required IReadOnlyDictionary<CleanRelationId, CleanRelation> Relations { get; init; }
+    public required IReadOnlyDictionary<CleanWayId, CleanWay> Ways { get; init; }
 }

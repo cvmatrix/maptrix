@@ -40,7 +40,7 @@ internal abstract class TaggableMapElement<TTagType> : ILocMapElement, ILocTagga
 
     private IElementHandle<Region> AccessRegionElementHandle()
     {
-        _elementHandle ??= GetRegionElementHandle(SourceMap.RegionManager);
+        _elementHandle ??= GetRegionElementHandle(SourceMap.Data.RegionManager);
         return _elementHandle;
     }
 }
