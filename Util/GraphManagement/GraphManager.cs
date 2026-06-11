@@ -9,16 +9,17 @@ public sealed class GraphManager<TNode, TEdge>
     where TNode : class
     where TEdge : class
 {
+    public bool ThreadSafe { get; }
     private readonly Dictionary<TEdge, EdgeInfo> _edges = [];
     private readonly Dictionary<TNode, NodeInfo> _nodes = [];
     private readonly IErgoLock _lock;
 
-    public bool ThreadSafe { get; }
     public GraphManager(bool threadSafe = false)
     {
         ThreadSafe = threadSafe;
         _lock = threadSafe ? new ErgoLock() : new DummyLock();
     }
+
     public void Connect(EConnectionDirection direction, TNode node, TEdge edge)
     {
         using var _ = _lock.WriteScope;
@@ -168,6 +169,18 @@ public sealed class GraphManager<TNode, TEdge>
         _nodes[newNode] = oldInfo;
     }
 
+    private EdgeInfo? GetEdgeInfo(TEdge edge)
+    {
+        using var _ = _lock.ReadScope;
+        return _edges.GetValueOrDefault(edge);
+    }
+
+    private NodeInfo? GetNodeInfo(TNode node)
+    {
+        using var _ = _lock.ReadScope;
+        return _nodes.GetValueOrDefault(node);
+    }
+
     private class EdgeHandle(TEdge node, GraphManager<TNode, TEdge> parent) : IEdgeHandle<TNode>
     {
         public readonly GraphManager<TNode, TEdge> Parent = parent;
@@ -198,17 +211,5 @@ public sealed class GraphManager<TNode, TEdge>
         public HashSet<TEdge> Incoming { get; set; } = [];
         public HashSet<TEdge> Outgoing { get; set; } = [];
         public bool IsInsignificant => Incoming.Count == 0 && Outgoing.Count == 0;
-    }
-
-    private EdgeInfo? GetEdgeInfo(TEdge edge)
-    {
-        using var _ = _lock.ReadScope;
-        return _edges.GetValueOrDefault(edge);
-    }
-
-    private NodeInfo? GetNodeInfo(TNode node)
-    {
-        using var _ = _lock.ReadScope;
-        return _nodes.GetValueOrDefault(node);
     }
 }

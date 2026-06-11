@@ -15,7 +15,10 @@ internal class MappedSetView<TOriginal, TMapped>(IReadOnlySet<TOriginal> origina
         return ComparisonFunction(item) is { } v && OriginalSet.Contains(v);
     }
 
-    public IEnumerator<TMapped> GetEnumerator() => OriginalSet.Select(MapFunction).GetEnumerator();
+    public IEnumerator<TMapped> GetEnumerator()
+    {
+        return OriginalSet.Select(MapFunction).GetEnumerator();
+    }
 
     public bool IsProperSubsetOf(IEnumerable<TMapped> other)
     {
