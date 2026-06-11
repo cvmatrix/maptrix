@@ -2,7 +2,7 @@ namespace CVMatrix.DropOffDefense.SLib.Util.ErgoLock;
 
 using System.Threading;
 
-public class ErgoLock(LockRecursionPolicy? lockRecursionPolicy = null) : IDisposable
+public class IErgoLock(LockRecursionPolicy? lockRecursionPolicy = null) : IDisposable
 {
 
     public ReaderWriterLockSlim InternalLock { get; } = new(lockRecursionPolicy ?? LockRecursionPolicy.NoRecursion);

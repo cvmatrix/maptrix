@@ -11,7 +11,7 @@ public sealed class GraphManager<TNode, TEdge>
 {
     private readonly Dictionary<TEdge, EdgeInfo> _edges = [];
     private readonly Dictionary<TNode, NodeInfo> _nodes = [];
-    private readonly ErgoLock _lock = new();
+    private readonly IErgoLock _lock = new();
 
     public void Connect(EConnectionDirection direction, TNode node, TEdge edge)
     {

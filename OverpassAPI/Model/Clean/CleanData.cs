@@ -12,13 +12,13 @@ public record CleanData
             switch (element.Type)
             {
                 case "node":
-                    nodes.Add(element.Id, CleanNode.FromRawElement(element));
+                    nodes[element.Id] = CleanNode.FromRawElement(element);
                     break;
                 case "way":
-                    ways.Add(element.Id, CleanWay.FromRawElement(element));
+                    ways[element.Id] = CleanWay.FromRawElement(element);
                     break;
                 case "relation":
-                    relations.Add(element.Id, CleanRelation.FromRawElement(element));
+                    relations[element.Id] = CleanRelation.FromRawElement(element);
                     break;
             }
 

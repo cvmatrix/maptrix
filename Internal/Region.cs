@@ -20,6 +20,6 @@ internal class Region : TaggableMapElement<IRegionTag>, ILocRegion
 
     protected override IRegionTag? SerializeTag(string key, string value)
     {
-        throw new NotImplementedException();
+        return null;
     }
 }
