@@ -3,6 +3,6 @@
 public interface ILocRegion : ILocMapElement, ILocTaggable<Tags.IRegionTag>
 {
     public IReadOnlyList<ILocCoordinates> Boundary { get; }
-    public IReadOnlyList<ILocCoordinates>? SubtractiveBoundary { get; }
+    public IReadOnlyList<IReadOnlyList<ILocCoordinates>> SubtractiveBoundaries { get; }
     public IReadOnlySet<ILocMapElement> EncompassedElements { get; }
 }

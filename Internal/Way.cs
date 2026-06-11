@@ -46,7 +46,7 @@ internal class Way : TaggableMapElement<IWayTag>, ILocWay
         return formerReverse;
     }
 
-    public Way CreateAdjacentReverse(int? connectionId)
+    public Way CreateAdjacentReverse()
     {
         Way reverseWay = new()
         {
@@ -60,6 +60,8 @@ internal class Way : TaggableMapElement<IWayTag>, ILocWay
             existingReverse.AdjacentReverse = null;
         AdjacentReverse = reverseWay;
         reverseWay.AdjacentReverse = this;
+        SourceMap.Data.Ways.Add(reverseWay);
+        SourceMap.Data.RegionManager.SetLine(reverseWay, reverseWay.Path.Select(x => x.Local.AsVector()));
         return reverseWay;
     }
 

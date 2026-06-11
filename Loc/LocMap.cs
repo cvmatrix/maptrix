@@ -1,5 +1,6 @@
 namespace CVMatrix.DropOffDefense.SLib.Loc;
 
+using System.Numerics;
 using OverpassAPI;
 using OverpassAPI.Model;
 using OverpassAPI.Model.Clean;
@@ -9,9 +10,6 @@ using Util.RegionManagement;
 using Internal;
 using GraphManager = Util.GraphManagement.GraphManager<Internal.Intersection, Internal.Way>;
 using RegionManager = Util.RegionManagement.RegionManager<Internal.Region, Internal.Way, Internal.IPointElement>;
-using WayId = ulong;
-using NodeId = ulong;
-using RelationId = ulong;
 public class LocMap
 {
 
@@ -29,49 +27,203 @@ public class LocMap
 
     public static LocMap FromOverpassData(CleanData data, ProjectionSource projection)
     {
-        var locData = new Resources()
+        HashSet<CleanWayId> interpretRegions = [];
+        HashSet<CleanWayId> interpretWays = [];
+        HashSet<CleanNodeId> interpretPois = [..data.Nodes.Keys];
+        Dictionary<CleanNodeId, List<CleanWayId>> interpretWayPathMap = [];
+        HashSet<CleanNodeId> interpretWayEnds = [];
+        Dictionary<CleanRelationId, (CleanWayId, List<CleanWayId>)> interpretMultipolygonRegions = [];
+
+        // ways/regions:
+        foreach (var wayData in data.Ways.Values)
+        {
+            // remove nodes from pois:
+            interpretPois.ExceptWith(wayData.Nodes);
+
+            // region check:
+            if (wayData.Nodes[0] == wayData.Nodes[^1])
+            {
+                interpretRegions.Add(wayData.Id);
+                continue;
+            }
+
+            interpretWays.Add(wayData.Id);
+            foreach (var wayNode in wayData.Nodes)
+            {
+                interpretWayPathMap.GetOrInitialize(wayNode, new List<CleanWayId>(1)).Add(wayData.Id);
+            }
+            interpretWayEnds.Add(wayData.Nodes[0]);
+            interpretWayEnds.Add(wayData.Nodes[^1]);
+        }
+
+        // multipolygon regions:
+        foreach (var relationData in data.Relations.Values)
+        {
+            if (!(relationData.Tags.TryGetValue("type", out var typeValue) && typeValue == "multipolygon")) continue;
+            CleanWayId? outer = null;
+            List<CleanWayId> inner = [];
+            foreach (var member in relationData.Members)
+            {
+                if (member.Type != CleanRelationMember.ERelationType.Way) continue;
+                // relation members should not be handled individually:
+                interpretRegions.Remove(member.Ref);
+                switch (member.Role)
+                {
+                    case "outer":
+                        outer = member.Ref;
+                        break;
+                    case "inner":
+                        inner.Add(member.Ref);
+                        break;
+                    default:
+                        throw new NotSupportedException("Unexpected member role in multipolygon relation: " + member.Role);
+                }
+            }
+
+            if (outer == null) throw new("Multipolygon region had no member with role 'outer'");
+            interpretMultipolygonRegions.Add(relationData.Id, (outer.Value, inner));
+        }
+
+        Resources loc = new()
         {
             Projection = projection,
             GraphManager = new(),
             RegionManager = new(),
             Regions = [],
             Intersections = [],
-            Ways = [],
             Pois = [],
+            Ways = [],
         };
+        LocMap locMap = new(loc);
 
-        HashSet<WayId> interpretRegions = [];
-        HashSet<WayId> interpretWays = [];
-        HashSet<NodeId> interpretPois = [..data.Nodes.Values];
-        Dictionary<CleanNode, HashSet<CleanWay>> intersectionMap = [];
-        HashSet<CleanRelation> relations = [..data.Relations.Values];
-
-        foreach (var wayData in data.Ways.Values)
+        // simple loc regions:
+        foreach (var regionData in interpretRegions.Select(x => data.Ways[x]))
         {
-            // remove way nodes from pois:
-            interpretPois.ExceptWith(wayData.Nodes.Select(x => data.Nodes[x]));
-
-            // region check:
-            if (wayData.Nodes[0] == wayData.Nodes[^1])
-            {
-                interpretRegions.Add(wayData);
-                continue;
-            }
-
-            // add ends to intersections:
-            interpretWays.Add(wayData);
-            foreach (var wayEnd in new[] {wayData.Nodes[0], wayData.Nodes[^1]}.Select(x => data.Nodes[x]))
-            {
-                if (intersectionMap.TryGetValue(wayEnd, out var connections))
-                    connections.Add(wayData);
-                else
-                    intersectionMap[wayEnd] = [wayData];
-            }
+            __AddRegion(regionData);
+        }
+        // multipolygon regions:
+        foreach (var (relationId, (outer, inners)) in interpretMultipolygonRegions)
+        {
+            var regionObj = __AddRegion(data.Ways[outer], inners.Select(x => data.Ways[x]));
+            regionObj.RawTags = data.Relations[relationId].Tags;
         }
 
+        // pois:
+        foreach (var poiData in interpretPois.Select(x => data.Nodes[x]))
+        {
+            __AddPoi(poiData);
+        }
 
-        throw new NotImplementedException();
+        Dictionary<CleanNodeId, Intersection> intersectionMap = [];
+        var intersectingNodeList = interpretWayPathMap.Where(x => x.Value.Count > 1).Select(x => x.Key).ToList();
+
+        // populate intersectionMap:
+        foreach (var nodeData in intersectingNodeList.Concat(interpretWayEnds).Select(x => data.Nodes[x]))
+        {
+            if (intersectionMap.ContainsKey(nodeData.Id))
+                continue;
+            intersectionMap[nodeData.Id] = __AddIntersection(nodeData);
+        }
+
+        // make & connect ways:
+        foreach (var wayData in interpretWays.Select(x => data.Ways[x]))
+        {
+            List<Coordinates> currentPath = new(wayData.Nodes.Count)
+            {
+                __NodeIdCoordinates(wayData.Nodes[0])
+            };
+            var currentFrom = intersectionMap[wayData.Nodes[0]];
+            for (int i = 1; i < wayData.Nodes.Count; i++)
+            {
+                var pathNode = wayData.Nodes[i];
+                currentPath.Add(__NodeIdCoordinates(pathNode));
+
+                // check if this node is an intersection:
+                if (!intersectionMap.TryGetValue(pathNode, out var currentTo))
+                    continue;
+                // then connect, and act as a new way starting from where the last one ended:
+                __ConnectWithWay(currentFrom, currentTo, currentPath, wayData.Tags);
+                currentPath.RemoveRange(0, currentPath.Count - 1);
+                currentFrom = currentTo;
+            }
+            // ~ above algorithm should always end on an intersection, so shouldnt need to make final connection.
+
+        }
+
+        return locMap;
+
+        Poi __AddPoi(CleanNode nodeData)
+        {
+            var poiObj = new Poi()
+            {
+                Position = __NodeCoordinates(nodeData),
+                RawTags = nodeData.Tags,
+                SourceMap = locMap,
+            };
+            loc.Pois.Add(poiObj);
+            loc.RegionManager.SetPoint(poiObj, poiObj.Position.Local.AsVector());
+            return poiObj;
+        }
+        (Way, Way?) __ConnectWithWay(Intersection from, Intersection to, IReadOnlyList<Coordinates> path, IReadOnlyDictionary<string, string> tags)
+        {
+            var wayObj = new Way()
+            {
+                RawTags = tags,
+                Path = path,
+                SourceMap = locMap,
+            };
+            loc.Ways.Add(wayObj);
+            loc.RegionManager.SetLine(wayObj, wayObj.Path.Select(x => x.Local.AsVector()));
+            loc.GraphManager.Connect(EConnectionDirection.From, from, wayObj);
+            loc.GraphManager.Connect(EConnectionDirection.To, to, wayObj);
+            Way? reverseAdjacentWayObj = null;
+            if (!(tags.TryGetValue("oneway", out var v) && v == "yes"))
+                reverseAdjacentWayObj = wayObj.CreateAdjacentReverse();
+            return (wayObj, reverseAdjacentWayObj);
+        }
+        Intersection __AddIntersection(CleanNode nodeData)
+        {
+            var intersectionObj = new Intersection()
+            {
+                SourceMap = locMap,
+                Position = __NodeCoordinates(nodeD),
+                RawTags = nodeData.Tags,
+            };
+            loc.Intersections.Add(intersectionObj);
+            loc.RegionManager.SetPoint(intersectionObj, intersectionObj.Position.Local);
+        }
+        Region __AddRegion(CleanWay outerRegionData, IEnumerable<CleanWay>? innerRegionDatas = null)
+        {
+            var regionObj = new Region()
+            {
+                SourceMap = locMap,
+                RawTags = outerRegionData.Tags,
+                Boundary = __NodesToCoordinates(outerRegionData.Nodes),
+                SubtractiveBoundaries = 
+                    innerRegionDatas?
+                        .Select(innerData => __NodesToCoordinates(innerData.Nodes))
+                        .ToList() ?? []
+            };
+            loc.Regions.Add(regionObj);
+            loc.RegionManager.SetRegion(regionObj, regionObj.Boundary.Select(x => (Vector2)x.Local), regionObj.SubtractiveBoundaries.Select(x => x.Select(y => (Vector2)y.Local)));
+            return regionObj;
+        }
+
+        Coordinates __NodeIdCoordinates(CleanNodeId nodeId)
+        {
+            var nodeData = data.Nodes[nodeId];
+            return new(projection, new(nodeData.Latitude, nodeData.Longitude));
+        }
+        Coordinates __NodeCoordinates(CleanNode nodeData)
+        {
+            return new Coordinates(projection, new(nodeData.Latitude, nodeData.Longitude));
+        }
+        List<Coordinates> __NodesToCoordinates(IEnumerable<CleanNodeId> nodes)
+        {
+            return nodes.Select(__NodeIdCoordinates).ToList();
+        }
     }
+
     internal class Resources
     {
         internal required ProjectionSource Projection { get; set; }

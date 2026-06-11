@@ -7,10 +7,10 @@ using Util.RegionManagement;
 internal class Region : TaggableMapElement<IRegionTag>, ILocRegion
 {
     public required IReadOnlyList<Coordinates> Boundary { get; set; }
-    public IReadOnlyList<Coordinates>? SubtractiveBoundary { get; set; }
+    public required IReadOnlyList<IReadOnlyList<Coordinates>> SubtractiveBoundaries { get; set; }
     IReadOnlyList<ILocCoordinates> ILocRegion.Boundary => Boundary;
 
-    IReadOnlyList<ILocCoordinates>? ILocRegion.SubtractiveBoundary => SubtractiveBoundary;
+    IReadOnlyList<IReadOnlyList<ILocCoordinates>> ILocRegion.SubtractiveBoundaries => SubtractiveBoundaries;
     IReadOnlySet<ILocMapElement> ILocRegion.EncompassedElements => throw new NotImplementedException();
 
     protected override IElementHandle<Region> GetRegionElementHandle(RegionManager<Region, Way, IPointElement> manager)
