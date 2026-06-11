@@ -9,7 +9,14 @@ internal class RegionManager<TRegion, TLine, TPoint> where TRegion : class where
     private readonly Dictionary<TLine, LineInfo> _lines = [];
     private readonly Dictionary<TPoint, PointInfo> _points = [];
     private readonly Dictionary<TRegion, RegionInfo> _regions = [];
-    private readonly IErgoLock _lock = new();
+    public bool ThreadSafe { get; }
+    public RegionManager(bool threadSafe = false)
+    {
+        ThreadSafe = threadSafe;
+        _lock = threadSafe ? new ErgoLock() : new DummyLock();
+    }
+
+    private readonly IErgoLock _lock;
 
     public ILineHandle<TRegion> GetLine(TLine key)
     {
@@ -29,26 +36,39 @@ internal class RegionManager<TRegion, TLine, TPoint> where TRegion : class where
     public void RemoveLine(TLine key)
     {
         using var _ = _lock.WriteScope;
+        RemoveLineInternal(key);
+    }
+
+    public void RemovePoint(TPoint key)
+    {
+        using var _ = _lock.WriteScope;
+        RemovePointInternal(key);
+    }
+
+    public void RemoveRegion(TRegion key)
+    {
+        using var _ = _lock.WriteScope;
+        RemoveRegionInternal(key);
+    }
+
+    private void RemoveLineInternal(TLine key)
+    {
         if (!_lines.Remove(key, out var removing)) return;
         foreach (var existingRegion in _regions.Values)
         {
             existingRegion.EncompassesLines.Remove(removing.KeyObject);
         }
     }
-
-    public void RemovePoint(TPoint key)
+    private void RemovePointInternal(TPoint key)
     {
-        using var _ = _lock.WriteScope;
         if (!_points.Remove(key, out var removing)) return;
         foreach (var existingRegion in _regions.Values)
         {
             existingRegion.EncompassesPoints.Remove(removing.KeyObject);
         }
     }
-
-    public void RemoveRegion(TRegion key)
+    private void RemoveRegionInternal(TRegion key)
     {
-        using var _ = _lock.WriteScope;
         if (!_regions.Remove(key, out var removing)) return;
         foreach (var existingRegion in _regions.Values)
         {
@@ -64,11 +84,10 @@ internal class RegionManager<TRegion, TLine, TPoint> where TRegion : class where
             existingPoint.EncompassedBy.Remove(removing.KeyObject);
         }
     }
-
     public void SetLine(TLine key, IEnumerable<Vector2> path)
     {
         using var _ = _lock.WriteScope;
-        RemoveLine(key);
+        RemoveLineInternal(key);
         var newLine = new LineInfo(key)
         {
             Path = [..path],
@@ -86,7 +105,7 @@ internal class RegionManager<TRegion, TLine, TPoint> where TRegion : class where
     public void SetPoint(TPoint key, Vector2 position)
     {
         using var _ = _lock.WriteScope;
-        RemovePoint(key);
+        RemovePointInternal(key);
         var newPoint = new PointInfo(key)
         {
             Position = position,
@@ -104,7 +123,7 @@ internal class RegionManager<TRegion, TLine, TPoint> where TRegion : class where
     public void SetRegion(TRegion key, IEnumerable<Vector2> boundary, IEnumerable<IEnumerable<Vector2>>? subtractiveBoundaries = null)
     {
         using var _ = _lock.WriteScope;
-        RemoveRegion(key);
+        RemoveRegionInternal(key);
         var newRegion = new RegionInfo(key)
         {
             BoundaryShape = new()

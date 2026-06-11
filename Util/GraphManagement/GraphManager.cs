@@ -11,8 +11,14 @@ public sealed class GraphManager<TNode, TEdge>
 {
     private readonly Dictionary<TEdge, EdgeInfo> _edges = [];
     private readonly Dictionary<TNode, NodeInfo> _nodes = [];
-    private readonly IErgoLock _lock = new();
+    private readonly IErgoLock _lock;
 
+    public bool ThreadSafe { get; }
+    public GraphManager(bool threadSafe = false)
+    {
+        ThreadSafe = threadSafe;
+        _lock = threadSafe ? new ErgoLock() : new DummyLock();
+    }
     public void Connect(EConnectionDirection direction, TNode node, TEdge edge)
     {
         using var _ = _lock.WriteScope;
