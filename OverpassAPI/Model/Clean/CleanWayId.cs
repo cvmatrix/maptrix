@@ -1,4 +1,4 @@
-namespace CVMatrix.DropOffDefense.SLib.OverpassAPI.Model.Clean;
+namespace CVMatrix.Maptrix.OverpassAPI.Model.Clean;
 
 public readonly struct CleanWayId(ulong value) : IEquatable<CleanWayId>
 {

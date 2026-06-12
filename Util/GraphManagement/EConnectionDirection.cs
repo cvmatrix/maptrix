@@ -1,4 +1,4 @@
-namespace CVMatrix.DropOffDefense.SLib.Util.GraphManagement;
+namespace CVMatrix.Maptrix.Util.GraphManagement;
 
 public enum EConnectionDirection
 {

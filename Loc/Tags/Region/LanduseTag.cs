@@ -1,4 +1,4 @@
-﻿namespace CVMatrix.DropOffDefense.SLib.Loc.Tags.Region;
+﻿namespace CVMatrix.Maptrix.Loc.Tags.Region;
 
 public sealed record LanduseTag : IWayTag
 {

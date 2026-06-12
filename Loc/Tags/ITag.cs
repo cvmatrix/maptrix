@@ -1,4 +1,4 @@
-namespace CVMatrix.DropOffDefense.SLib.Loc.Tags;
+namespace CVMatrix.Maptrix.Loc.Tags;
 
 public interface ITag
 {

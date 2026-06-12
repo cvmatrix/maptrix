@@ -1,4 +1,4 @@
-namespace CVMatrix.DropOffDefense.SLib.OverpassAPI.Model.Clean;
+namespace CVMatrix.Maptrix.OverpassAPI.Model.Clean;
 
 public readonly struct CleanRelationId(ulong value) : IEquatable<CleanRelationId>
 {

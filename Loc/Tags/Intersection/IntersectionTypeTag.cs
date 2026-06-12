@@ -1,4 +1,4 @@
-﻿namespace CVMatrix.DropOffDefense.SLib.Loc.Tags.Intersection;
+﻿namespace CVMatrix.Maptrix.Loc.Tags.Intersection;
 
 // DEV: use the 'highway' and 'crossing' key.
 public sealed record IntersectionTypeTag : IWayTag

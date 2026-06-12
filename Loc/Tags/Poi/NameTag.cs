@@ -1,4 +1,4 @@
-﻿namespace CVMatrix.DropOffDefense.SLib.Loc.Tags.Poi;
+﻿namespace CVMatrix.Maptrix.Loc.Tags.Poi;
 
 public sealed record NameTag : IPoiTag
 {

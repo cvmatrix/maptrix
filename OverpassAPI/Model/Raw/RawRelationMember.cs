@@ -1,4 +1,4 @@
-namespace CVMatrix.DropOffDefense.SLib.OverpassAPI.Model.Raw;
+namespace CVMatrix.Maptrix.OverpassAPI.Model.Raw;
 
 public class RawRelationMember
 {

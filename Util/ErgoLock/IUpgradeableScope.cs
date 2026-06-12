@@ -1,4 +1,4 @@
-﻿namespace CVMatrix.DropOffDefense.SLib.Util.ErgoLock;
+﻿namespace CVMatrix.Maptrix.Util.ErgoLock;
 
 public interface IUpgradeableScope : ILockScope
 {

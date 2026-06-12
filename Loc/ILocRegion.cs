@@ -1,4 +1,4 @@
-﻿namespace CVMatrix.DropOffDefense.SLib.Loc;
+﻿namespace CVMatrix.Maptrix.Loc;
 
 public interface ILocRegion : ILocMapElement, ILocTaggable<Tags.IRegionTag>
 {

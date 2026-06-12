@@ -1,4 +1,4 @@
-namespace CVMatrix.DropOffDefense.SLib.Loc;
+namespace CVMatrix.Maptrix.Loc;
 
 using System.Numerics;
 using OverpassAPI;

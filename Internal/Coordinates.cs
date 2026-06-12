@@ -1,4 +1,4 @@
-namespace CVMatrix.DropOffDefense.SLib.Internal;
+namespace CVMatrix.Maptrix.Internal;
 
 using Loc;
 

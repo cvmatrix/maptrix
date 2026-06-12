@@ -1,4 +1,4 @@
-﻿namespace CVMatrix.DropOffDefense.SLib.Loc.Tags.Way;
+﻿namespace CVMatrix.Maptrix.Loc.Tags.Way;
 
 /// <summary>
 /// <i>Subtag of: <see cref="WayTypeTag.EValue.ServiceRoad"/></i>

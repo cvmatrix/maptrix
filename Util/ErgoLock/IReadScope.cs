@@ -1,3 +1,3 @@
-﻿namespace CVMatrix.DropOffDefense.SLib.Util.ErgoLock;
+﻿namespace CVMatrix.Maptrix.Util.ErgoLock;
 
 public interface IReadScope : ILockScope;

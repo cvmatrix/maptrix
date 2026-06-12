@@ -1,4 +1,4 @@
-﻿namespace CVMatrix.DropOffDefense.SLib.Util.RegionManagement;
+﻿namespace CVMatrix.Maptrix.Util.RegionManagement;
 
 using System.Numerics;
 
