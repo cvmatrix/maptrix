@@ -4,12 +4,18 @@ using Model.Raw;
 using System.Net.Http;
 using System.Text.Json.Serialization;
 using System.Text.Json;
+
 public class OverpassClient : IDisposable
 {
     private readonly HttpClient _httpClient = new()
     {
-        BaseAddress = new Uri("https://overpass-api.de")
+        BaseAddress = new("https://overpass-api.de")
     };
+
+    public void Dispose()
+    {
+        _httpClient.Dispose();
+    }
 
     public async Task<Response> MakeQuery(string overpassql)
     {
@@ -17,18 +23,17 @@ public class OverpassClient : IDisposable
 
         var response = await _httpClient.PostAsync("api/interpreter", body);
         _ = response.EnsureSuccessStatusCode();
-        var options = new JsonSerializerOptions()
+        var options = new JsonSerializerOptions
         {
-            PropertyNameCaseInsensitive = true,
+            PropertyNameCaseInsensitive = true
         };
         var responseString = await response.Content.ReadAsStringAsync();
         return new(responseString, JsonSerializer.Deserialize<RawResponse>(responseString, options)!);
     }
 
-    public Task<Response> MakeQuery(OverpassQuery query) => MakeQuery(query.AsQL());
-    public void Dispose()
+    public Task<Response> MakeQuery(OverpassQuery query)
     {
-        _httpClient.Dispose();
+        return MakeQuery(query.AsQL());
     }
 
     public record Response(string Json, RawResponse Model);

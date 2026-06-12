@@ -3,25 +3,29 @@
 // DEV: use the 'highway' and 'crossing' key.
 public sealed record IntersectionTypeTag : IWayTag
 {
+    public required EValue? Value { get; init; }
+    public required string RawValue { get; init; }
+
     public enum EValue
     {
         /// <summary>
-        /// Stop sign intersection.
+        ///     Stop sign intersection.
         /// </summary>
         StopSign,
+
         /// <summary>
-        /// Yield sign or similar road intersection.
+        ///     Yield sign or similar road intersection.
         /// </summary>
         Yield,
+
         /// <summary>
-        /// Street crossing for pedestrians, cyclists, or equestrians.
+        ///     Street crossing for pedestrians, cyclists, or equestrians.
         /// </summary>
         PedestrianCrossing,
+
         /// <summary>
-        /// Traffic-light controlled intersection.
+        ///     Traffic-light controlled intersection.
         /// </summary>
-        TrafficLight,
+        TrafficLight
     }
-    public required EValue? Value { get; init; }
-    public required string RawValue { get; init; }
 }

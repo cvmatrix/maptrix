@@ -2,7 +2,7 @@
 
 public interface ITrixIntersection : ITrixMapElement, ITrixTaggable<Tags.IIntersectionTag>
 {
-    public ITrixCoordinates Position { get; }
     public IReadOnlySet<ITrixWay> Incoming { get; }
     public IReadOnlySet<ITrixWay> Outgoing { get; }
+    public ITrixCoordinates Position { get; }
 }

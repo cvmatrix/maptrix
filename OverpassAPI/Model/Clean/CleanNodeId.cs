@@ -18,8 +18,24 @@ public readonly struct CleanNodeId(ulong value) : IEquatable<CleanNodeId>
     }
 
     public readonly ulong Value = value;
-    public static bool operator ==(CleanNodeId left, CleanNodeId right) => left.Value == right.Value;
-    public static bool operator !=(CleanNodeId left, CleanNodeId right) => left.Value != right.Value;
-    public static implicit operator ulong(CleanNodeId id) => id.Value;
-    public static implicit operator CleanNodeId(ulong value) => new(value);
+
+    public static bool operator ==(CleanNodeId left, CleanNodeId right)
+    {
+        return left.Value == right.Value;
+    }
+
+    public static bool operator !=(CleanNodeId left, CleanNodeId right)
+    {
+        return left.Value != right.Value;
+    }
+
+    public static implicit operator ulong(CleanNodeId id)
+    {
+        return id.Value;
+    }
+
+    public static implicit operator CleanNodeId(ulong value)
+    {
+        return new(value);
+    }
 }

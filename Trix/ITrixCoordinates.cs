@@ -1,9 +1,8 @@
 ﻿namespace CVMatrix.Maptrix.Trix;
 
-public interface ILocCoordinates
+public interface ITrixCoordinates
 {
-    public ProjectionSource Source { get; }
     public PlanarCoordinates Local { get; }
+    public ProjectionSource Source { get; }
     public RawEarthCoordinates Raw { get; }
-
 }

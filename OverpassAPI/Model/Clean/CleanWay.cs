@@ -17,9 +17,10 @@ public record CleanWay
         };
     }
 
+    public required CleanWayId Id { get; init; }
+
     public required IReadOnlyDictionary<string, string> Tags { get; init; }
     public required IReadOnlyList<CleanNodeId> Nodes { get; init; }
-    public required CleanWayId Id { get; init; }
 
     public virtual bool Equals(CleanWay? other)
     {

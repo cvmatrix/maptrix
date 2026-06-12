@@ -5,5 +5,8 @@ using Model.Raw;
 
 public static class Extensions
 {
-    public static CleanData Clean(this RawResponse response) => CleanData.FromRawResponse(response);
+    public static CleanData Clean(this RawResponse response)
+    {
+        return CleanData.FromRawResponse(response);
+    }
 }

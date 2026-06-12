@@ -1,8 +1,8 @@
 ﻿namespace CVMatrix.Maptrix.Trix;
 
-public interface ILocMapElement
+public interface ITrixMapElement
 {
     public IReadOnlyDictionary<string, string>? RawTags { get; }
-    public LocMap SourceMap { get; }
-    public IReadOnlySet<ILocRegion> InRegions { get; }
+    public IReadOnlySet<ITrixRegion> InRegions { get; }
+    public TrixMap SourceMap { get; }
 }

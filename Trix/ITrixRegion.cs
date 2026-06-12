@@ -1,11 +1,11 @@
-﻿namespace CVMatrix.Maptrix.Loc;
+﻿namespace CVMatrix.Maptrix.Trix;
 
-public interface ILocRegion : ILocMapElement, ILocTaggable<Tags.IRegionTag>
+public interface ITrixRegion : ITrixMapElement, ITrixTaggable<Tags.IRegionTag>
 {
-    public IReadOnlyList<ILocCoordinates> Boundary { get; }
-    public IReadOnlyList<IReadOnlyList<ILocCoordinates>> SubtractiveBoundaries { get; }
-    public IReadOnlySet<ILocPoi> EncompassesPois { get; }
-    public IReadOnlySet<ILocRegion> EncompassesRegions { get; }
-    public IReadOnlySet<ILocWay> EncompassesWays { get; }
-    public IReadOnlySet<ILocIntersection> EncompassesIntersections { get; }
+    public IReadOnlyList<IReadOnlyList<ITrixCoordinates>> SubtractiveBoundaries { get; }
+    public IReadOnlyList<ITrixCoordinates> Boundary { get; }
+    public IReadOnlySet<ITrixIntersection> EncompassesIntersections { get; }
+    public IReadOnlySet<ITrixPoi> EncompassesPois { get; }
+    public IReadOnlySet<ITrixRegion> EncompassesRegions { get; }
+    public IReadOnlySet<ITrixWay> EncompassesWays { get; }
 }

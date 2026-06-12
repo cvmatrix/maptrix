@@ -1,27 +1,15 @@
 namespace CVMatrix.Maptrix.Trix;
 
 using System.Numerics;
-using CVMatrix.Maptrix.Internal;
-using CVMatrix.Maptrix.OverpassAPI.Model.Clean;
-using CVMatrix.Maptrix.Util.Collections;
-using CVMatrix.Maptrix.Util.GraphManagement;
+using Internal;
+using OverpassAPI.Model.Clean;
+using Util.Collections;
+using Util.GraphManagement;
 using GraphManager = Util.GraphManagement.GraphManager<Internal.Intersection, Internal.Way>;
 using RegionManager = Util.RegionManagement.RegionManager<Internal.Region, Internal.Way, Internal.IPointElement>;
+
 public class TrixMap
 {
-
-    internal Resources Data;
-    public ProjectionSource Projection => Data.Projection;
-    public IReadOnlySet<ITrixRegion> Regions => Data.Regions.CastingView<Region, ITrixRegion>();
-    public IReadOnlySet<ITrixIntersection> Intersections => Data.Intersections.CastingView<Intersection, ITrixIntersection>();
-    public IReadOnlySet<ITrixWay> Ways => Data.Ways.CastingView<Way, ITrixWay>();
-    public IReadOnlySet<ITrixPoi> Pois => Data.Pois.CastingView<Poi, ITrixPoi>();
-
-    private TrixMap(Resources data)
-    {
-        Data = data;
-    }
-
     public static TrixMap FromOverpassData(CleanData data, ProjectionSource projection)
     {
         HashSet<CleanWayId> interpretRegions = [];
@@ -45,10 +33,7 @@ public class TrixMap
             }
 
             interpretWays.Add(wayData.Id);
-            foreach (var wayNode in wayData.Nodes)
-            {
-                interpretWayPathMap.GetOrInitialize(wayNode, new List<CleanWayId>(1)).Add(wayData.Id);
-            }
+            foreach (var wayNode in wayData.Nodes) interpretWayPathMap.GetOrInitialize(wayNode, new List<CleanWayId>(1)).Add(wayData.Id);
             interpretWayEnds.Add(wayData.Nodes[0]);
             interpretWayEnds.Add(wayData.Nodes[^1]);
         }
@@ -89,15 +74,12 @@ public class TrixMap
             Regions = [],
             Intersections = [],
             Pois = [],
-            Ways = [],
+            Ways = []
         };
         TrixMap trixMap = new(trix);
 
         // simple trix regions:
-        foreach (var regionData in interpretRegions.Select(x => data.Ways[x]))
-        {
-            __AddRegion(regionData);
-        }
+        foreach (var regionData in interpretRegions.Select(x => data.Ways[x])) __AddRegion(regionData);
         // multipolygon regions:
         foreach (var (relationId, (outer, inners)) in interpretMultipolygonRegions)
         {
@@ -106,10 +88,7 @@ public class TrixMap
         }
 
         // pois:
-        foreach (var poiData in interpretPois.Select(x => data.Nodes[x]))
-        {
-            __AddPoi(poiData);
-        }
+        foreach (var poiData in interpretPois.Select(x => data.Nodes[x])) __AddPoi(poiData);
 
         Dictionary<CleanNodeId, Intersection> intersectionMap = [];
         var intersectingNodeList = interpretWayPathMap.Where(x => x.Value.Count > 1).Select(x => x.Key).ToList();
@@ -130,7 +109,7 @@ public class TrixMap
                 __NodeIdCoordinates(wayData.Nodes[0])
             };
             var currentFrom = intersectionMap[wayData.Nodes[0]];
-            for (int i = 1; i < wayData.Nodes.Count; i++)
+            for (var i = 1; i < wayData.Nodes.Count; i++)
             {
                 var pathNode = wayData.Nodes[i];
                 currentPath.Add(__NodeIdCoordinates(pathNode));
@@ -144,30 +123,30 @@ public class TrixMap
                 currentFrom = currentTo;
             }
             // ~ above algorithm should always end on an intersection, so shouldnt need to make final connection.
-
         }
 
         return trixMap;
 
         Poi __AddPoi(CleanNode nodeData)
         {
-            var poiObj = new Poi()
+            var poiObj = new Poi
             {
                 Position = __NodeCoordinates(nodeData),
                 RawTags = nodeData.Tags,
-                SourceMap = trixMap,
+                SourceMap = trixMap
             };
             trix.Pois.Add(poiObj);
             trix.RegionManager.SetPoint(poiObj, poiObj.Position.Local.AsVector());
             return poiObj;
         }
+
         (Way, Way?) __ConnectWithWay(Intersection from, Intersection to, IReadOnlyList<Coordinates> path, IReadOnlyDictionary<string, string> tags)
         {
-            var wayObj = new Way()
+            var wayObj = new Way
             {
                 RawTags = tags,
                 Path = path,
-                SourceMap = trixMap,
+                SourceMap = trixMap
             };
             trix.Ways.Add(wayObj);
             trix.RegionManager.SetLine(wayObj, wayObj.Path.Select(x => x.Local.AsVector()));
@@ -178,26 +157,28 @@ public class TrixMap
                 reverseAdjacentWayObj = wayObj.CreateAdjacentReverse();
             return (wayObj, reverseAdjacentWayObj);
         }
+
         Intersection __AddIntersection(CleanNode nodeData)
         {
-            var intersectionObj = new Intersection()
+            var intersectionObj = new Intersection
             {
                 SourceMap = trixMap,
                 Position = __NodeCoordinates(nodeData),
-                RawTags = nodeData.Tags,
+                RawTags = nodeData.Tags
             };
             trix.Intersections.Add(intersectionObj);
             trix.RegionManager.SetPoint(intersectionObj, intersectionObj.Position.Local);
             return intersectionObj;
         }
+
         Region __AddRegion(CleanWay outerRegionData, IEnumerable<CleanWay>? innerRegionDatas = null)
         {
-            var regionObj = new Region()
+            var regionObj = new Region
             {
                 SourceMap = trixMap,
                 RawTags = outerRegionData.Tags,
                 Boundary = __NodesToCoordinates(outerRegionData.Nodes),
-                SubtractiveBoundaries = 
+                SubtractiveBoundaries =
                     innerRegionDatas?
                         .Select(innerData => __NodesToCoordinates(innerData.Nodes))
                         .ToList() ?? []
@@ -212,24 +193,39 @@ public class TrixMap
             var nodeData = data.Nodes[nodeId];
             return new(projection, new(nodeData.Latitude, nodeData.Longitude));
         }
+
         Coordinates __NodeCoordinates(CleanNode nodeData)
         {
-            return new Coordinates(projection, new(nodeData.Latitude, nodeData.Longitude));
+            return new(projection, new(nodeData.Latitude, nodeData.Longitude));
         }
+
         List<Coordinates> __NodesToCoordinates(IEnumerable<CleanNodeId> nodes)
         {
             return nodes.Select(__NodeIdCoordinates).ToList();
         }
     }
 
+    public IReadOnlySet<ITrixIntersection> Intersections => Data.Intersections.CastingView<Intersection, ITrixIntersection>();
+    public IReadOnlySet<ITrixPoi> Pois => Data.Pois.CastingView<Poi, ITrixPoi>();
+    public IReadOnlySet<ITrixRegion> Regions => Data.Regions.CastingView<Region, ITrixRegion>();
+    public IReadOnlySet<ITrixWay> Ways => Data.Ways.CastingView<Way, ITrixWay>();
+    public ProjectionSource Projection => Data.Projection;
+
+    internal Resources Data;
+
+    private TrixMap(Resources data)
+    {
+        Data = data;
+    }
+
     internal class Resources
     {
-        internal required ProjectionSource Projection { get; set; }
         internal required GraphManager GraphManager { get; set; }
-        internal required RegionManager RegionManager { get; set; }
-        internal required HashSet<Region> Regions { get; set; }
         internal required HashSet<Intersection> Intersections { get; set; }
-        internal required HashSet<Way> Ways { get; set; }
         internal required HashSet<Poi> Pois { get; set; }
+        internal required HashSet<Region> Regions { get; set; }
+        internal required HashSet<Way> Ways { get; set; }
+        internal required ProjectionSource Projection { get; set; }
+        internal required RegionManager RegionManager { get; set; }
     }
 }

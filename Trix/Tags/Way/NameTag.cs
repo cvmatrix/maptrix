@@ -2,6 +2,6 @@
 
 public sealed record NameTag : IWayTag
 {
-    public string Value => RawValue;
     public required string RawValue { get; init; }
+    public string Value => RawValue;
 }

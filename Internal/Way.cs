@@ -30,12 +30,12 @@ internal class Way : TaggableMapElement<IWayTag>, ITrixWay
     private IReadOnlyList<Coordinates> _path = [];
 
     float ITrixWay.PathLength => PathLength;
+
+    IReadOnlyList<ITrixCoordinates> ITrixWay.Path => Path;
     ITrixIntersection ITrixWay.From => From;
     ITrixIntersection ITrixWay.To => To;
 
     ITrixWay? ITrixWay.AdjacentReverse => AdjacentReverse;
-
-    IReadOnlyList<ITrixCoordinates> ITrixWay.Path => Path;
 
     public Way? BreakFromAdjacentReverse()
     {

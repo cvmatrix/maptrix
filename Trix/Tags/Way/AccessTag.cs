@@ -2,17 +2,19 @@
 
 public sealed record AccessTag : IWayTag
 {
+    public required EValue? Value { get; init; }
+    public required string RawValue { get; init; }
+
     public enum EValue
     {
         /// <summary>
-        /// Not to be used by the public.
+        ///     Not to be used by the public.
         /// </summary>
         Private,
+
         /// <summary>
-        /// Access requires a permit, ordinarily granted.
+        ///     Access requires a permit, ordinarily granted.
         /// </summary>
-        Permit,
+        Permit
     }
-    public required EValue? Value { get; init; }
-    public required string RawValue { get; init; }
 }

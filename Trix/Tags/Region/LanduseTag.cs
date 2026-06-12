@@ -2,6 +2,9 @@
 
 public sealed record LanduseTag : IWayTag
 {
+    public required EValue? Value { get; init; }
+    public required string RawValue { get; init; }
+
     public enum EValue
     {
         Farmland,
@@ -10,8 +13,6 @@ public sealed record LanduseTag : IWayTag
         Forest,
         MiscFauna,
         Industrial,
-        Religious,
+        Religious
     }
-    public required EValue? Value { get; init; }
-    public required string RawValue { get; init; }
 }
