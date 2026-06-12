@@ -1,13 +1,13 @@
 namespace CVMatrix.Maptrix.Internal;
 
-using Loc;
-using Loc.Tags;
+using Trix;
+using Trix.Tags;
 using Util.Collections;
 using Util.RegionManagement;
 
-internal abstract class TaggableMapElement<TTagType> : ILocMapElement, ILocTaggable<TTagType> where TTagType : class, ITag
+internal abstract class TaggableMapElement<TTagType> : ITrixMapElement, ITrixTaggable<TTagType> where TTagType : class, ITag
 {
-    public required LocMap SourceMap { get; init; }
+    public required TrixMap SourceMap { get; init; }
 
     public required IReadOnlyDictionary<string, string> RawTags
     {
@@ -26,7 +26,7 @@ internal abstract class TaggableMapElement<TTagType> : ILocMapElement, ILocTagga
     private Dictionary<Type, TTagType> _serialTagMap = [];
     private IElementHandle<Region>? _elementHandle;
 
-    IReadOnlySet<ILocRegion> ILocMapElement.InRegions => AccessRegionElementHandle().EncompassedBy.CastingView<Region, ILocRegion>();
+    IReadOnlySet<ITrixRegion> ITrixMapElement.InRegions => AccessRegionElementHandle().EncompassedBy.CastingView<Region, ITrixRegion>();
 
     public TTag? GetTag<TTag>() where TTag : class, TTagType
     {

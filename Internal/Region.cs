@@ -1,14 +1,14 @@
 namespace CVMatrix.Maptrix.Internal;
 
-using Loc;
-using Loc.Tags;
+using Trix;
+using Trix.Tags;
 using Util.RegionManagement;
 using Util.Collections;
-internal class Region : TaggableMapElement<IRegionTag>, ILocRegion
+internal class Region : TaggableMapElement<IRegionTag>, ITrixRegion
 {
     public required IReadOnlyList<Coordinates> Boundary { get; set; }
     public required IReadOnlyList<IReadOnlyList<Coordinates>> SubtractiveBoundaries { get; set; }
-    IReadOnlyList<ILocCoordinates> ILocRegion.Boundary => Boundary;
+    IReadOnlyList<ITrixCoordinates> ITrixRegion.Boundary => Boundary;
 
     private IRegionHandle<Region, Way, IPointElement>? _regionHandle = null;
 
@@ -17,12 +17,12 @@ internal class Region : TaggableMapElement<IRegionTag>, ILocRegion
         _regionHandle ??= SourceMap.Data.RegionManager.GetRegion(this);
         return _regionHandle;
     }
-    IReadOnlyList<IReadOnlyList<ILocCoordinates>> ILocRegion.SubtractiveBoundaries => SubtractiveBoundaries;
+    IReadOnlyList<IReadOnlyList<ITrixCoordinates>> ITrixRegion.SubtractiveBoundaries => SubtractiveBoundaries;
 
-    IReadOnlySet<ILocRegion> ILocRegion.EncompassesRegions => AccessRegionHandle().EncompassesRegions.CastingView<Region, ILocRegion>();
-    IReadOnlySet<ILocWay> ILocRegion.EncompassesWays => AccessRegionHandle().EncompassesLines.CastingView<Way, ILocWay>();
-    IReadOnlySet<ILocPoi> ILocRegion.EncompassesPois => new HashSet<ILocPoi>(AccessRegionHandle().EncompassesPoints.Where(x => x is Poi).Cast<ILocPoi>());
-    IReadOnlySet<ILocIntersection> ILocRegion.EncompassesIntersections => new HashSet<ILocIntersection>(AccessRegionHandle().EncompassesPoints.Where(x => x is Intersection).Cast<ILocIntersection>());
+    IReadOnlySet<ITrixRegion> ITrixRegion.EncompassesRegions => AccessRegionHandle().EncompassesRegions.CastingView<Region, ITrixRegion>();
+    IReadOnlySet<ITrixWay> ITrixRegion.EncompassesWays => AccessRegionHandle().EncompassesLines.CastingView<Way, ITrixWay>();
+    IReadOnlySet<ITrixPoi> ITrixRegion.EncompassesPois => new HashSet<ITrixPoi>(AccessRegionHandle().EncompassesPoints.Where(x => x is Poi).Cast<ITrixPoi>());
+    IReadOnlySet<ITrixIntersection> ITrixRegion.EncompassesIntersections => new HashSet<ITrixIntersection>(AccessRegionHandle().EncompassesPoints.Where(x => x is Intersection).Cast<ITrixIntersection>());
 
     protected override IElementHandle<Region> GetRegionElementHandle(RegionManager<Region, Way, IPointElement> manager)
     {

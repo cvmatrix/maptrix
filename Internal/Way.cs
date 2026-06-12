@@ -1,12 +1,12 @@
 namespace CVMatrix.Maptrix.Internal;
 
-using Loc;
-using Loc.Tags;
 using System.Numerics;
+using Trix;
+using Trix.Tags;
 using Util.GraphManagement;
 using Util.RegionManagement;
 
-internal class Way : TaggableMapElement<IWayTag>, ILocWay
+internal class Way : TaggableMapElement<IWayTag>, ITrixWay
 {
     public float PathLength { get; private set; }
     public Way? AdjacentReverse { get; private set; }
@@ -29,13 +29,13 @@ internal class Way : TaggableMapElement<IWayTag>, ILocWay
 
     private IReadOnlyList<Coordinates> _path = [];
 
-    float ILocWay.PathLength => PathLength;
-    ILocIntersection ILocWay.From => From;
-    ILocIntersection ILocWay.To => To;
+    float ITrixWay.PathLength => PathLength;
+    ITrixIntersection ITrixWay.From => From;
+    ITrixIntersection ITrixWay.To => To;
 
-    ILocWay? ILocWay.AdjacentReverse => AdjacentReverse;
+    ITrixWay? ITrixWay.AdjacentReverse => AdjacentReverse;
 
-    IReadOnlyList<ILocCoordinates> ILocWay.Path => Path;
+    IReadOnlyList<ITrixCoordinates> ITrixWay.Path => Path;
 
     public Way? BreakFromAdjacentReverse()
     {

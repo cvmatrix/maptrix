@@ -1,8 +1,8 @@
 namespace CVMatrix.Maptrix.Internal;
 
-using Loc;
+using Trix;
 
-internal class Coordinates : ILocCoordinates
+internal class Coordinates : ITrixCoordinates
 {
     public PlanarCoordinates Local { get; }
     public ProjectionSource Source { get; }

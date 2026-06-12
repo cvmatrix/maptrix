@@ -1,14 +1,14 @@
 namespace CVMatrix.Maptrix.Internal;
 
-using Loc;
-using Loc.Tags;
+using Trix;
+using Trix.Tags;
 using Util.RegionManagement;
 
-internal class Poi : TaggableMapElement<IPoiTag>, ILocPoi, IPointElement
+internal class Poi : TaggableMapElement<IPoiTag>, ITrixPoi, IPointElement
 {
     public required Coordinates Position { get; set; }
 
-    ILocCoordinates ILocPoi.Position => Position;
+    ITrixCoordinates ITrixPoi.Position => Position;
 
     protected override IElementHandle<Region> GetRegionElementHandle(RegionManager<Region, Way, IPointElement> manager)
     {
