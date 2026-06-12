@@ -81,7 +81,7 @@ public class TrixMap
             interpretMultipolygonRegions.Add(relationData.Id, (outer.Value, inner));
         }
 
-        Resources loc = new()
+        Resources trix = new()
         {
             Projection = projection,
             GraphManager = new(),
@@ -91,9 +91,9 @@ public class TrixMap
             Pois = [],
             Ways = [],
         };
-        TrixMap trixMap = new(loc);
+        TrixMap trixMap = new(trix);
 
-        // simple loc regions:
+        // simple trix regions:
         foreach (var regionData in interpretRegions.Select(x => data.Ways[x]))
         {
             __AddRegion(regionData);
@@ -157,8 +157,8 @@ public class TrixMap
                 RawTags = nodeData.Tags,
                 SourceMap = trixMap,
             };
-            loc.Pois.Add(poiObj);
-            loc.RegionManager.SetPoint(poiObj, poiObj.Position.Local.AsVector());
+            trix.Pois.Add(poiObj);
+            trix.RegionManager.SetPoint(poiObj, poiObj.Position.Local.AsVector());
             return poiObj;
         }
         (Way, Way?) __ConnectWithWay(Intersection from, Intersection to, IReadOnlyList<Coordinates> path, IReadOnlyDictionary<string, string> tags)
@@ -169,10 +169,10 @@ public class TrixMap
                 Path = path,
                 SourceMap = trixMap,
             };
-            loc.Ways.Add(wayObj);
-            loc.RegionManager.SetLine(wayObj, wayObj.Path.Select(x => x.Local.AsVector()));
-            loc.GraphManager.Connect(EConnectionDirection.From, from, wayObj);
-            loc.GraphManager.Connect(EConnectionDirection.To, to, wayObj);
+            trix.Ways.Add(wayObj);
+            trix.RegionManager.SetLine(wayObj, wayObj.Path.Select(x => x.Local.AsVector()));
+            trix.GraphManager.Connect(EConnectionDirection.From, from, wayObj);
+            trix.GraphManager.Connect(EConnectionDirection.To, to, wayObj);
             Way? reverseAdjacentWayObj = null;
             if (!(tags.TryGetValue("oneway", out var v) && v == "yes"))
                 reverseAdjacentWayObj = wayObj.CreateAdjacentReverse();
@@ -186,8 +186,8 @@ public class TrixMap
                 Position = __NodeCoordinates(nodeData),
                 RawTags = nodeData.Tags,
             };
-            loc.Intersections.Add(intersectionObj);
-            loc.RegionManager.SetPoint(intersectionObj, intersectionObj.Position.Local);
+            trix.Intersections.Add(intersectionObj);
+            trix.RegionManager.SetPoint(intersectionObj, intersectionObj.Position.Local);
             return intersectionObj;
         }
         Region __AddRegion(CleanWay outerRegionData, IEnumerable<CleanWay>? innerRegionDatas = null)
@@ -202,8 +202,8 @@ public class TrixMap
                         .Select(innerData => __NodesToCoordinates(innerData.Nodes))
                         .ToList() ?? []
             };
-            loc.Regions.Add(regionObj);
-            loc.RegionManager.SetRegion(regionObj, regionObj.Boundary.Select(x => (Vector2)x.Local), regionObj.SubtractiveBoundaries.Select(x => x.Select(y => (Vector2)y.Local)));
+            trix.Regions.Add(regionObj);
+            trix.RegionManager.SetRegion(regionObj, regionObj.Boundary.Select(x => (Vector2)x.Local), regionObj.SubtractiveBoundaries.Select(x => x.Select(y => (Vector2)y.Local)));
             return regionObj;
         }
 
