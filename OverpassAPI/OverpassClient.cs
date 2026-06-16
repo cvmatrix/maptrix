@@ -14,7 +14,7 @@ public class OverpassClient : IDisposable
         {
             UserAgent =
             {
-                new("Godot", "4.6.3")
+                new("sixslime", "cvmatrix")
             }
         }
     };
