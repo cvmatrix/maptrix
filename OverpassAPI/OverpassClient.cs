@@ -28,12 +28,11 @@ public class OverpassClient : IDisposable
     {
         var body = new FormUrlEncodedContent([new("data", overpassql)]);
         var response = await _httpClient.PostAsync("api/interpreter", body);
-        _ = response.EnsureSuccessStatusCode();
+        if (!response.IsSuccessStatusCode) return null;
         var options = new JsonSerializerOptions
         {
             PropertyNameCaseInsensitive = true
         };
-        if (!response.IsSuccessStatusCode) return null;
         var responseString = await response.Content.ReadAsStringAsync();
         return new(responseString, JsonSerializer.Deserialize<RawResponse>(responseString, options)!);
     }
