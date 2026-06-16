@@ -17,7 +17,7 @@ public class OverpassClient : IDisposable
         _httpClient.Dispose();
     }
 
-    public async Task<Response> MakeQuery(string overpassql)
+    public async Task<Response?> MakeQuery(string overpassql)
     {
         var body = new FormUrlEncodedContent([new("data", overpassql)]);
 
@@ -27,6 +27,7 @@ public class OverpassClient : IDisposable
         {
             PropertyNameCaseInsensitive = true
         };
+        if (!response.IsSuccessStatusCode) return null;
         var responseString = await response.Content.ReadAsStringAsync();
         return new(responseString, JsonSerializer.Deserialize<RawResponse>(responseString, options)!);
     }
