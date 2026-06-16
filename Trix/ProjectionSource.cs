@@ -12,14 +12,16 @@ public record ProjectionSource
     {
         Origin = origin;
         EarthRadius = earthRadius;
-        var offset0 = ToEcef(origin.Latitude, origin.Latitude);
+        var offset0 = ToEcef(origin.Latitude, origin.Longitude);
+        double latRad = origin.Latitude * Math.PI / 180.0;
+        double lonRad = origin.Longitude * Math.PI / 180.0;
         var north0 = new Vec3(
-            -Math.Sin(origin.Latitude) * Math.Cos(origin.Latitude),
-            -Math.Sin(origin.Latitude) * Math.Sin(origin.Latitude),
-            Math.Cos(origin.Latitude));
+            -Math.Sin(latRad) * Math.Cos(lonRad),
+            -Math.Sin(latRad) * Math.Sin(lonRad),
+            Math.Cos(latRad));
         var east0 = new Vec3(
-            -Math.Sin(origin.Latitude),
-            Math.Cos(origin.Latitude),
+            -Math.Sin(lonRad),
+            Math.Cos(lonRad),
             0);
         _originData = new()
         {
@@ -96,7 +98,7 @@ public record ProjectionSource
 
         public static Vec3 operator -(Vec3 a, Vec3 b)
         {
-            return new(a.X - b.X, a.Y - b.Y, a.Z - a.Z);
+            return new(a.X - b.X, a.Y - b.Y, a.Z - b.Z);
         }
 
         public static Vec3 operator -(Vec3 a)
