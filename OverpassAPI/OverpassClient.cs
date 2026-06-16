@@ -9,7 +9,14 @@ public class OverpassClient : IDisposable
 {
     private readonly HttpClient _httpClient = new()
     {
-        BaseAddress = new("https://overpass-api.de")
+        BaseAddress = new("https://overpass-api.de"),
+        DefaultRequestHeaders =
+        {
+            UserAgent =
+            {
+                new("Godot", "4.6.3")
+            }
+        }
     };
 
     public void Dispose()
@@ -20,7 +27,6 @@ public class OverpassClient : IDisposable
     public async Task<Response?> MakeQuery(string overpassql)
     {
         var body = new FormUrlEncodedContent([new("data", overpassql)]);
-
         var response = await _httpClient.PostAsync("api/interpreter", body);
         _ = response.EnsureSuccessStatusCode();
         var options = new JsonSerializerOptions
